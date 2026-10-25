@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="مصروفي">
 <meta name="description" content="تتبع مصروفاتك الشهرية والسنوية وتذكير بالأقساط">
 <link rel="manifest" href="manifest.json">
+<script>window.__bip=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__bip=e;});</script>
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/favicon.png">
 <title>مصروفي</title>
@@ -286,6 +287,9 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .inst-banner .icon-btn.x{width:32px;height:32px;box-shadow:none;background:transparent;color:var(--muted)}
 .inst-hero{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:18px;padding:12px;margin-bottom:16px}
 .inst-hero img{width:56px;height:56px;border-radius:16px}.inst-hero b{display:block;font-size:16px}.inst-hero small{color:var(--muted);font-size:13px}
+.inst-wait{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;padding:6px 2px 18px}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--lime);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 .inst-steps{margin:0 0 18px;padding:0;list-style:none;counter-reset:st}
 .inst-steps li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:14.5px;line-height:1.6;border-bottom:1px solid var(--line)}
 .inst-steps li:last-child{border-bottom:0}
@@ -400,6 +404,7 @@ ar: {
   backupBody: 'ملف JSON فيه كل بياناتك', restore: 'استرجاع نسخة احتياطية', wipe: 'مسح كل البيانات', confirmWipe: 'هيتم مسح كل المصروفات والتذكيرات نهائيًا. متأكد؟',
   restored: 'تم الاسترجاع ✓', badFile: 'الملف غير صالح', storedLocally: 'بياناتك محفوظة على جهازك فقط — مفيش سيرفر.', general: 'عام',
   yesterday: 'أمس', tagline: 'تتبع مصروفاتك بسهولة',
+  installQ: 'تريد تثبيت مصروفي؟', instPreparing: 'جاري تجهيز التثبيت…', instReady: 'جاهز! اضغط «تثبيت» وهيتضاف مصروفي على موبايلك زي أي تطبيق.', instManualIntro: 'المتصفح مش سامح بالتثبيت المباشر دلوقتي، تقدر تثبته في ٣ خطوات:', alreadyInstalled: 'مصروفي متثبت بالفعل على الجهاز ده — افتحه من الشاشة الرئيسية أو قايمة التطبيقات.',
   installBannerT: 'ثبّت مصروفي على موبايلك', installBannerB: 'يفتح زي أي تطبيق ويشتغل من غير نت', installNow: 'تثبيت', copyLinkBtn: 'نسخ رابط التطبيق',
   inst_chrome1: 'اضغط على قايمة كروم <b>⋮</b> فوق على اليمين.', inst_chrome2: 'اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.', inst_chrome3: 'اضغط <b>«تثبيت»</b> — الأيقونة هتظهر مع باقي تطبيقاتك.',
   inst_inapp1: 'انت فاتح الرابط من جوه تطبيق تاني (واتساب/فيسبوك) ودا مش بيسمح بالتثبيت.', inst_inapp2: 'اضغط <b>⋮</b> واختار <b>«فتح في Chrome»</b> — أو انسخ الرابط وافتحه في كروم.',
@@ -446,6 +451,7 @@ en: {
   backupBody: 'A JSON file with all your data', restore: 'Restore backup', wipe: 'Erase all data', confirmWipe: 'This permanently erases all expenses and reminders. Continue?',
   restored: 'Restored ✓', badFile: 'Invalid file', storedLocally: 'Your data stays on this device — no server.', general: 'General',
   yesterday: 'Yesterday', tagline: 'Track your expenses with ease',
+  installQ: 'Install Masroufi?', instPreparing: 'Preparing install…', instReady: 'Ready! Tap "Install" and Masroufi will be added to your phone like any app.', instManualIntro: 'Your browser doesn\'t allow direct install right now — you can install it in 3 steps:', alreadyInstalled: 'Masroufi is already installed on this device — open it from your home screen or app drawer.',
   installBannerT: 'Install Masroufi on your phone', installBannerB: 'Opens like any app and works offline', installNow: 'Install', copyLinkBtn: 'Copy app link',
   inst_chrome1: 'Tap Chrome\'s menu <b>⋮</b> at the top right.', inst_chrome2: 'Choose <b>"Install app"</b> or <b>"Add to Home screen"</b>.', inst_chrome3: 'Tap <b>"Install"</b> — the icon appears with your other apps.',
   inst_inapp1: 'You opened this link inside another app (WhatsApp/Facebook), which blocks installing.', inst_inapp2: 'Tap <b>⋮</b> and choose <b>"Open in Chrome"</b> — or copy the link and open it in Chrome.',
@@ -1217,26 +1223,54 @@ const UA = navigator.userAgent;
 const isAndroid = () => /android/i.test(UA);
 const isInApp = () => /FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|Snapchat|TikTok|Messenger|; wv\)/i.test(UA);
 const isSamsung = () => /SamsungBrowser/i.test(UA);
+function manualSteps() {
+  if (isInApp()) return [t('inst_inapp1'), t('inst_inapp2'), t('inst_chrome2')];
+  if (isIOS()) return [t('inst_ios1'), t('inst_ios2'), t('inst_ios3')];
+  if (isSamsung()) return [t('inst_sam1'), t('inst_sam2'), t('inst_sam3')];
+  if (isAndroid()) return [t('inst_chrome1'), t('inst_chrome2'), t('inst_chrome3')];
+  return [t('inst_desk1'), t('inst_desk2')];
+}
+async function runPrompt() {
+  const ev = installEvt; if (!ev) return false;
+  installEvt = null; window.__bip = null;
+  try {
+    await ev.prompt();
+    const c = await ev.userChoice;
+    if (c.outcome === 'accepted') { closeSheet(); toast(t('installed'), 3000); }
+  } catch (e) { return false; }
+  render(); return true;
+}
+async function isAlreadyInstalled() {
+  try { if (navigator.getInstalledRelatedApps) return (await navigator.getInstalledRelatedApps()).length > 0; } catch (e) {}
+  return false;
+}
+const appHero = () => `<div class="inst-hero"><img src="icons/icon-192.png" alt=""><div><b>${t('appName')}</b><small>${t('tagline')}</small></div></div>`;
 async function doInstall() {
-  if (installEvt) {
-    installEvt.prompt();
-    const c = await installEvt.userChoice; installEvt = null;
-    if (c.outcome === 'accepted') toast(t('installed'));
-    render(); return;
+  // Chrome is ready: open its native "Install app?" dialog right away
+  if (installEvt) { await runPrompt(); return; }
+  if (await isAlreadyInstalled()) {
+    openSheet(`${appHero()}<p class="confirm-msg">✅ ${t('alreadyInstalled')}</p><button class="btn primary block" data-close>${t('ok')}</button>`);
+    return;
   }
-  let steps;
-  if (isInApp()) steps = [t('inst_inapp1'), t('inst_inapp2'), t('inst_chrome2')];
-  else if (isIOS()) steps = [t('inst_ios1'), t('inst_ios2'), t('inst_ios3')];
-  else if (isSamsung()) steps = [t('inst_sam1'), t('inst_sam2'), t('inst_sam3')];
-  else if (isAndroid()) steps = [t('inst_chrome1'), t('inst_chrome2'), t('inst_chrome3')];
-  else steps = [t('inst_desk1'), t('inst_desk2')];
-  openSheet(`<div class="sheet-h"><h3>${t('install')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
-    <div class="inst-hero"><img src="icons/icon-192.png" alt=""><div><b>${t('appName')}</b><small>${t('tagline')}</small></div></div>
-    <ol class="inst-steps">${steps.map((x) => `<li><span>${x}</span></li>`).join('')}</ol>
-    ${isInApp() ? `<button class="btn dark block" id="cpUrl" style="margin-bottom:10px">${t('copyLinkBtn')}</button>` : ''}
-    <button class="btn primary block" data-close>${t('ok')}</button>`, (sh) => {
-    const b = $('#cpUrl', sh);
-    if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(new URL('./', location.href).href); toast(t('linkCopied')); } catch (e) { toast(location.origin, 5000); } };
+  const canWait = isAndroid() && !isInApp() && !isSamsung() && !isIOS();
+  const stepsHtml = `<p style="color:var(--muted);font-size:13.5px;margin:0 0 6px">${t('instManualIntro')}</p>
+    <ol class="inst-steps">${manualSteps().map((x) => `<li><span>${x}</span></li>`).join('')}</ol>`;
+  openSheet(`<div class="sheet-h"><h3>${t('installQ')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    ${appHero()}
+    <div id="instBody">${canWait ? `<div class="inst-wait"><span class="spin"></span>${t('instPreparing')}</div>` : stepsHtml}</div>
+    <div class="btns"><button class="btn ghost" data-close>${t('cancel')}</button><button class="btn primary" id="instGo" ${canWait ? 'disabled style="opacity:.5"' : ''}>${canWait ? t('installNow') : t('ok')}</button></div>`,
+  (sh) => {
+    const go = $('#instGo', sh);
+    if (!canWait) { go.onclick = () => closeSheet(); return; }
+    const ready = () => { $('#instBody', sh).innerHTML = `<p class="confirm-msg" style="margin:4px 0 14px">${t('instReady')}</p>`; go.disabled = false; go.style.opacity = ''; go.onclick = () => runPrompt(); };
+    if (installEvt) { ready(); return; }
+    const onEvt = () => { if ($('#instGo')) ready(); };
+    window.addEventListener('beforeinstallprompt', onEvt, { once: true });
+    setTimeout(() => {
+      if (installEvt || !$('#instBody')) return;
+      window.removeEventListener('beforeinstallprompt', onEvt);
+      $('#instBody', sh).innerHTML = stepsHtml; go.disabled = false; go.style.opacity = ''; go.textContent = t('ok'); go.onclick = () => closeSheet();
+    }, 6000);
   });
 }
 function installBanner() {
@@ -1246,14 +1280,14 @@ function installBanner() {
     <button class="btn primary sm" data-act="install">${t('installNow')}</button><button class="icon-btn x" data-act="hideInstall" aria-label="close">${ICON.close}</button></div>`;
 }
 /* ================= SETTINGS ================= */
-let installEvt = null;
+let installEvt = window.__bip || null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 function renderSettings() {
   const st = S.settings;
   const np = 'Notification' in window ? Notification.permission : 'unsupported';
   const installRow = isStandalone() ? `<div class="set-row"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('installed')}</b></div></div>`
-    : `<button class="set-row" data-act="install"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('install')}</b><small>${t('installBody')}</small></div>${ICON.chev}</button>`;
+    : `<button class="set-row" data-act="install"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('install')}</b><small>${t('installBody')}</small></div><span class="btn primary sm" style="pointer-events:none">${t('installNow')}</span></button>`;
   return `<header class="topbar"><div><p class="sub">${t('appName')}</p><h1>${t('settings')}</h1></div></header>
   <p class="set-title">${t('general')}</p>
   <div class="set-group">
@@ -1292,7 +1326,7 @@ function renderSettings() {
     <button class="set-row" data-act="restore"><span class="ic">${ICON.up}</span><div class="lab"><b>${t('restore')}</b></div>${ICON.chev}</button>
     <button class="set-row" data-act="wipe"><span class="ic" style="color:var(--danger)">${ICON.trash}</span><div class="lab"><b class="danger-text">${t('wipe')}</b></div></button>
   </div>
-  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.4.0</span><span>🔒 ${t('storedLocally')}</span></div>`;
+  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.4.1</span><span>🔒 ${t('storedLocally')}</span></div>`;
 }
 
 /* ================= Sheet / toast / confirm ================= */

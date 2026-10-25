@@ -81,5 +81,11 @@
       "form_factor": "narrow",
       "label": "تذكير الأقساط"
     }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://masroufy-ecru.vercel.app/manifest.json"
+    }
   ]
 }
