@@ -278,6 +278,8 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .credit{display:flex;flex-direction:column;align-items:center;gap:8px;margin:26px 0 8px;color:var(--muted);font-size:12px;text-align:center}
 .credit img{width:64px;height:64px;border-radius:18px;background:#fff;padding:6px;object-fit:contain;box-shadow:var(--shadow)}
 .credit b{color:var(--text);font-size:14px}
+.sync-steps{margin:12px 0 0;background:var(--surface2);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.8;color:var(--muted)}
+.sync-steps b{color:var(--text)}
 .code-box{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;font-weight:700;letter-spacing:.06em;text-align:center;
   background:var(--surface);border:1.5px dashed var(--line);border-radius:16px;padding:14px 10px;margin-bottom:14px;word-break:break-all;user-select:all}
 .view{animation:fade .25s ease}
@@ -387,11 +389,11 @@ ar: {
   backupBody: 'ملف JSON فيه كل بياناتك', restore: 'استرجاع نسخة احتياطية', wipe: 'مسح كل البيانات', confirmWipe: 'هيتم مسح كل المصروفات والتذكيرات نهائيًا. متأكد؟',
   restored: 'تم الاسترجاع ✓', badFile: 'الملف غير صالح', storedLocally: 'بياناتك محفوظة على جهازك فقط — مفيش سيرفر.', general: 'عام',
   yesterday: 'أمس', tagline: 'تتبع مصروفاتك بسهولة',
-  syncTitle: 'المزامنة بين الأجهزة', syncIntro: 'شوف مصروفاتك على أي موبايل أو كمبيوتر — من غير تسجيل دخول.', syncEnable: 'تفعيل المزامنة', syncLink: 'ربط بجهاز تاني',
-  syncLinkBody: 'اكتب كود المزامنة اللي ظاهر على جهازك التاني (من الإعدادات ← إضافة جهاز). بيانات الجهازين هتتدمج مع بعض.', syncCode: 'كود المزامنة', syncLinkBtn: 'ربط الجهاز',
-  syncOn: 'المزامنة مفعّلة', syncing: 'جاري المزامنة…', syncedAgo: 'آخر مزامنة {0}', syncAddDevice: 'إضافة جهاز تاني', syncAddDeviceBody: 'كود أو QR تفتحه على الجهاز التاني',
+  syncTitle: 'المزامنة بين الأجهزة', syncIntro: 'شوف مصروفاتك على أي موبايل أو كمبيوتر — من غير تسجيل دخول.', syncSteps: '<b>أول مرة؟</b> اضغط «تفعيل المزامنة» على جهازك الأساسي هيظهر لك كود.<br><b>جهاز تاني؟</b> اضغط «ربط بجهاز تاني» واكتب الكود ده.', syncNoStorageBody: 'المزامنة محتاجة قاعدة بيانات على Vercel: افتح المشروع ← Storage ← Upstash for Redis ← Connect، وبعدين Redeploy.', ok: 'تمام', syncEnable: 'تفعيل المزامنة', syncLink: 'ربط بجهاز تاني',
+  syncLinkBody: 'الكود بيتعمل على جهازك التاني: افتح التطبيق عليه ← الإعدادات ← «تفعيل المزامنة» (أو «عرض كود المزامنة» لو كانت مفعّلة). اكتب الكود اللي هيظهر هنا، وبيانات الجهازين هتتدمج مع بعض.', syncCode: 'كود المزامنة', syncLinkBtn: 'ربط الجهاز',
+  syncOn: 'المزامنة مفعّلة', syncing: 'جاري المزامنة…', syncedAgo: 'آخر مزامنة {0}', syncAddDevice: 'عرض كود المزامنة', syncAddDeviceBody: 'لإضافة جهاز تاني بالكود أو الـ QR',
   syncOff: 'إيقاف المزامنة', syncOffBody: 'البيانات هتفضل على الجهاز ده', syncOffConfirm: 'إيقاف المزامنة على الجهاز ده؟ بياناتك هتفضل موجودة عليه، والأجهزة التانية مش هتتأثر.', syncOffDone: 'تم إيقاف المزامنة',
-  syncCodeTitle: 'كود المزامنة', syncCodeBody: 'امسح الـ QR من الجهاز التاني، أو افتح نفس التطبيق عليه وادخل على الإعدادات ← ربط بجهاز تاني واكتب الكود.',
+  syncCodeTitle: 'كود المزامنة', syncCodeBody: 'على الجهاز التاني: امسح الـ QR بالكاميرا، أو افتح التطبيق ← الإعدادات ← «ربط بجهاز تاني» واكتب الكود ده.',
   copyCode: 'نسخ الكود', shareLink: 'مشاركة الرابط', copied: 'اتنسخ ✓', linkCopied: 'اتنسخ الرابط ✓', syncSecret: 'الكود ده زي الباسورد — أي حد معاه يقدر يشوف مصروفاتك. ماتبعتوش لحد.',
   syncShareText: 'رابط ربط مصروفي بجهازي', syncLinked: 'تم الربط والمزامنة ✓', syncBadCode: 'الكود غير صحيح', syncNoStorage: 'خدمة التخزين مش متفعلة على السيرفر', syncOffline: 'مفيش إنترنت — هتتزامن لما يرجع',
   syncFailed: 'تعذرت المزامنة', syncLinkConfirm: 'ربط الجهاز ده بمصروفاتك المتزامنة؟ البيانات اللي عليه هتتدمج معاها.', syncLinkYes: 'ربط', test: 'تجربة', budgetSet: 'تم تحديث الميزانية', fromPdf: 'كشف'
@@ -427,11 +429,11 @@ en: {
   backupBody: 'A JSON file with all your data', restore: 'Restore backup', wipe: 'Erase all data', confirmWipe: 'This permanently erases all expenses and reminders. Continue?',
   restored: 'Restored ✓', badFile: 'Invalid file', storedLocally: 'Your data stays on this device — no server.', general: 'General',
   yesterday: 'Yesterday', tagline: 'Track your expenses with ease',
-  syncTitle: 'Sync across devices', syncIntro: 'See your expenses on any phone or computer — no sign-in needed.', syncEnable: 'Turn on sync', syncLink: 'Link a device',
-  syncLinkBody: 'Enter the sync code shown on your other device (Settings → Add another device). Both devices\' data will be merged.', syncCode: 'Sync code', syncLinkBtn: 'Link device',
-  syncOn: 'Sync is on', syncing: 'Syncing…', syncedAgo: 'Last synced {0}', syncAddDevice: 'Add another device', syncAddDeviceBody: 'A code or QR to open on the other device',
+  syncTitle: 'Sync across devices', syncIntro: 'See your expenses on any phone or computer — no sign-in needed.', syncSteps: '<b>First time?</b> Tap "Turn on sync" on your main device to get a code.<br><b>Another device?</b> Tap "Link a device" and enter that code.', syncNoStorageBody: 'Sync needs a database on Vercel: open the project → Storage → Upstash for Redis → Connect, then Redeploy.', ok: 'OK', syncEnable: 'Turn on sync', syncLink: 'Link a device',
+  syncLinkBody: 'The code is created on your other device: open the app there → Settings → "Turn on sync" (or "Show sync code" if it is already on). Enter that code here and both devices\' data will be merged.', syncCode: 'Sync code', syncLinkBtn: 'Link device',
+  syncOn: 'Sync is on', syncing: 'Syncing…', syncedAgo: 'Last synced {0}', syncAddDevice: 'Show sync code', syncAddDeviceBody: 'To add another device by code or QR',
   syncOff: 'Turn off sync', syncOffBody: 'Your data stays on this device', syncOffConfirm: 'Turn off sync on this device? Your data stays here and other devices are not affected.', syncOffDone: 'Sync turned off',
-  syncCodeTitle: 'Sync code', syncCodeBody: 'Scan the QR from your other device, or open the app there and go to Settings → Link a device and enter the code.',
+  syncCodeTitle: 'Sync code', syncCodeBody: 'On the other device: scan this QR with the camera, or open the app → Settings → "Link a device" and enter this code.',
   copyCode: 'Copy code', shareLink: 'Share link', copied: 'Copied ✓', linkCopied: 'Link copied ✓', syncSecret: 'Treat this code like a password — anyone with it can see your expenses.',
   syncShareText: 'Link Masroufi to my device', syncLinked: 'Linked and synced ✓', syncBadCode: 'Invalid code', syncNoStorage: 'Cloud storage is not set up on the server', syncOffline: "You're offline — will sync when back online",
   syncFailed: "Couldn't sync", syncLinkConfirm: 'Link this device to your synced expenses? Its data will be merged in.', syncLinkYes: 'Link', test: 'Test', budgetSet: 'Budget updated', fromPdf: 'statement'
@@ -1128,6 +1130,10 @@ async function syncNow(opts = {}) {
 function syncErrText(e) {
   return { storage_not_configured: t('syncNoStorage'), not_found: t('syncBadCode'), offline: t('syncOffline'), '400': t('syncBadCode') }[e] || t('syncFailed');
 }
+function syncErrBox(err) {
+  const extra = err === 'storage_not_configured' ? `<p style="color:var(--muted);font-size:13.5px;margin:-8px 0 18px">${t('syncNoStorageBody')}</p>` : '';
+  openSheet(`<p class="confirm-msg">⚠️ ${esc(syncErrText(err))}</p>${extra}<button class="btn dark block" data-close>${t('ok')}</button>`);
+}
 function syncStatusText() {
   if (syncBusy) return t('syncing');
   if (SY.err) return '⚠️ ' + syncErrText(SY.err);
@@ -1139,7 +1145,7 @@ function refreshSyncUI() { const el = $('#syncStatus'); if (el) el.textContent =
 async function enableSync() {
   SY = { code: newCode(), rev: 0 }; saveSY(); refreshSyncUI();
   const ok = await syncNow();
-  if (!ok) { const err = SY.err; SY = {}; saveSY(); render(); toast(syncErrText(err), 4000); return; }
+  if (!ok) { const err = SY.err; SY = {}; saveSY(); render(); syncErrBox(err); return; }
   render(); showSyncCode();
 }
 async function linkSync(raw) {
@@ -1147,7 +1153,7 @@ async function linkSync(raw) {
   if (!/^[A-HJ-NP-Z2-9]{20}$/.test(code)) { toast(t('syncBadCode')); return false; }
   const prev = SY; SY = { code, rev: 0 }; saveSY();
   const ok = await syncNow({ mustExist: true });
-  if (!ok) { const err = SY.err; SY = prev; saveSY(); toast(syncErrText(err), 4000); render(); return false; }
+  if (!ok) { const err = SY.err; SY = prev; saveSY(); render(); syncErrBox(err); return false; }
   toast(t('syncLinked')); render(); return true;
 }
 function openLinkSheet() {
@@ -1220,6 +1226,7 @@ function renderSettings() {
     <button class="set-row" data-act="syncCode"><span class="ic">${ICON.qr}</span><div class="lab"><b>${t('syncAddDevice')}</b><small>${t('syncAddDeviceBody')}</small></div>${ICON.chev}</button>
     <button class="set-row" data-act="syncOff"><span class="ic">${ICON.cloudOff}</span><div class="lab"><b>${t('syncOff')}</b><small>${t('syncOffBody')}</small></div></button>` : `
     <div class="set-row col"><div class="head"><span class="ic">${ICON.cloud}</span><div class="lab"><b>${t('syncTitle')}</b><small>${t('syncIntro')}</small></div></div>
+      <p class="sync-steps">${t('syncSteps')}</p>
       <div class="row2" style="margin-top:12px"><button class="btn primary sm" data-act="syncOn">${t('syncEnable')}</button><button class="btn ghost sm" data-act="syncLink">${t('syncLink')}</button></div></div>`}
   </div>
   <p class="set-title">${t('data')}</p>
@@ -1228,7 +1235,7 @@ function renderSettings() {
     <button class="set-row" data-act="restore"><span class="ic">${ICON.up}</span><div class="lab"><b>${t('restore')}</b></div>${ICON.chev}</button>
     <button class="set-row" data-act="wipe"><span class="ic" style="color:var(--danger)">${ICON.trash}</span><div class="lab"><b class="danger-text">${t('wipe')}</b></div></button>
   </div>
-  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.3.0</span><span>🔒 ${t('storedLocally')}</span></div>`;
+  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.3.1</span><span>🔒 ${t('storedLocally')}</span></div>`;
 }
 
 /* ================= Sheet / toast / confirm ================= */
