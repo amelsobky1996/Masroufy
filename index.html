@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F1F19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مصروفي">
+<meta name="description" content="تتبع مصروفاتك الشهرية والسنوية وتذكير بالأقساط">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>مصروفي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4EF;--surface:#FFFFFF;--surface2:#ECEFE8;--text:#0E1714;--muted:#68766E;--line:#E2E7DF;
+  --brand:#0F1F19;--brand2:#1B3B2F;--lime:#C6F36B;--lime-soft:#EAF8C9;--lime-ink:#0E1714;
+  --danger:#E5484D;--danger-soft:#FDECEC;--warn:#C97A06;--warn-soft:#FDF2DC;--ok:#1F9D63;--ok-soft:#E1F5EA;
+  --shadow:0 1px 2px rgba(14,23,20,.04),0 10px 30px rgba(14,23,20,.06);
+  --r:22px;--r-sm:14px;color-scheme:light;
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A110E;--surface:#121B17;--surface2:#19251F;--text:#E9F1EB;--muted:#8B9B92;--line:#22302A;
+  --brand:#16271F;--brand2:#20402F;--lime-soft:#26351A;
+  --danger-soft:#3A1A1B;--warn-soft:#3A2C12;--ok-soft:#14301F;--warn:#F2B547;--ok:#4CC88A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.25);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A110E;--surface:#121B17;--surface2:#19251F;--text:#E9F1EB;--muted:#8B9B92;--line:#22302A;
+  --brand:#16271F;--brand2:#20402F;--lime-soft:#26351A;
+  --danger-soft:#3A1A1B;--warn-soft:#3A2C12;--ok-soft:#14301F;--warn:#F2B547;--ok:#4CC88A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.25);color-scheme:dark}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.5;
+  min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+[dir="rtl"] .flip{transform:scaleX(-1)}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+#app{max-width:540px;margin:0 auto;padding:calc(var(--safe-t) + 8px) 16px calc(110px + var(--safe-b))}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 14px}
+.topbar h1{font-size:24px;font-weight:700;margin:0;letter-spacing:-.01em}
+.topbar .sub{color:var(--muted);font-size:13px;margin:0}
+.icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow);color:var(--text)}
+.icon-btn:active{transform:scale(.96)}
+
+.month-switch{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:14px;padding:4px;box-shadow:var(--shadow)}
+.month-switch button{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.month-switch button:active{background:var(--surface2)}
+.month-switch button:disabled{opacity:.3}
+.month-switch span{font-weight:600;font-size:14px;min-width:96px;text-align:center}
+
+.card{background:var(--surface);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-h h3{margin:0;font-size:16px;font-weight:700}
+.link{color:var(--muted);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:2px}
+.link svg{width:16px;height:16px}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;border-radius:28px;padding:22px 20px 20px;color:#F1F7EE;margin-bottom:14px;
+  background:radial-gradient(120% 90% at 100% 0%,#2C5A43 0%,transparent 60%),linear-gradient(160deg,var(--brand2),#0F1F19 70%)}
+.hero::after{content:"";position:absolute;inset-inline-end:-40px;bottom:-60px;width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,243,107,.22),transparent 70%)}
+.hero .lbl{font-size:13px;opacity:.75;margin:0 0 4px}
+.hero .big{font-size:38px;font-weight:700;line-height:1.15;margin:0;color:var(--lime)}
+.hero .delta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12.5px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.09)}
+.hero .delta b{font-weight:700}
+.hero .delta.up b{color:#FFB4A8}.hero .delta.down b{color:var(--lime)}
+.budget{margin-top:16px;position:relative;z-index:1}
+.budget .row{display:flex;justify-content:space-between;font-size:12.5px;opacity:.85;margin-bottom:6px}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--lime);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.bar.over>i{background:#FF8A7A}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border-radius:18px;padding:14px 12px;box-shadow:var(--shadow);min-width:0}
+.stat .k{color:var(--muted);font-size:12px;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .v{font-weight:700;font-size:15.5px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Category breakdown */
+.cat-row{display:flex;align-items:center;gap:12px;padding:8px 0}
+.cat-ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:19px;flex:none}
+.cat-main{flex:1;min-width:0}
+.cat-top{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:6px}
+.cat-top span:first-child{font-weight:600}
+.cat-top .pct{color:var(--muted);font-size:12px;margin-inline-start:6px;font-weight:500}
+.thin{height:6px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.thin>i{display:block;height:100%;border-radius:99px}
+
+/* Year bars */
+.ybars{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:18px}
+.ybar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0}
+.ybar .col{width:100%;max-width:26px;border-radius:8px 8px 4px 4px;background:var(--surface2);position:relative;min-height:4px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
+.ybar.has .col{background:color-mix(in srgb,var(--brand2) 35%,var(--surface2))}
+.ybar.sel .col{background:var(--lime)}
+.ybar .m{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.ybar.sel .m{color:var(--text);font-weight:700}
+.ybar .tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;white-space:nowrap;color:var(--text)}
+
+/* Years */
+.year-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.year-row:last-child{border-bottom:0}
+.year-row .y{font-weight:700;font-size:15px;min-width:44px}
+.year-row .t{text-align:end}
+.year-row .t b{display:block;font-size:14.5px}
+.year-row .t small{color:var(--muted);font-size:11.5px}
+.alltime{display:flex;justify-content:space-between;align-items:center;background:var(--lime-soft);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14px}
+.alltime b{font-size:16px}
+
+/* Lists */
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);text-align:start;width:100%}
+.item:last-child{border-bottom:0}
+.item .mid{flex:1;min-width:0}
+.item .t1{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .t2{color:var(--muted);font-size:12px}
+.item .amt{font-weight:700;font-size:14.5px;white-space:nowrap}
+.day-h{display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;font-weight:600;padding:14px 4px 6px}
+
+.empty{text-align:center;padding:34px 18px}
+.empty .art{width:84px;height:84px;margin:0 auto 14px;border-radius:26px;background:var(--lime-soft);display:grid;place-items:center;font-size:38px}
+.empty h3{margin:0 0 6px;font-size:18px}
+.empty p{margin:0 auto 18px;color:var(--muted);max-width:300px;font-size:14px}
+
+/* Buttons & form */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 20px;border-radius:16px;font-weight:700;font-size:15px;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--lime);color:var(--lime-ink)}
+.btn.dark{background:var(--text);color:var(--bg)}
+.btn.ghost{background:var(--surface2);color:var(--text)}
+.btn.danger{background:var(--danger-soft);color:var(--danger)}
+.btn.block{width:100%}
+.btn.sm{height:38px;padding:0 14px;border-radius:12px;font-size:13.5px}
+.btn svg.i{width:19px;height:19px}
+
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);padding:0 14px;outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--text)}
+textarea.input{height:auto;min-height:70px;padding:12px 14px;resize:none}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2368766E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-inline-end:38px}
+[dir="ltr"] select.input{background-position:right 12px center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.amount-box{display:flex;align-items:baseline;justify-content:center;gap:8px;padding:6px 0 18px}
+.amount-box input{border:0;outline:none;background:transparent;font-size:46px;font-weight:700;text-align:center;width:100%;max-width:280px;color:var(--text)}
+.amount-box input::placeholder{color:var(--line)}
+.amount-box .cur{font-size:16px;color:var(--muted);font-weight:600}
+
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:14px}
+.chips::-webkit-scrollbar{display:none}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-size:13.5px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.chip .e{font-size:15px}
+
+.seg{display:flex;background:var(--surface2);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;height:40px;border-radius:11px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Statement */
+.filters{display:grid;gap:10px;margin-bottom:14px}
+.search{position:relative}
+.search svg{position:absolute;inset-inline-start:14px;top:50%;transform:translateY(-50%);color:var(--muted);width:19px;height:19px}
+.search .input{padding-inline-start:42px}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.sum-grid .s{background:var(--surface2);border-radius:14px;padding:10px 12px}
+.sum-grid .s small{display:block;color:var(--muted);font-size:11.5px}
+.sum-grid .s b{font-size:14.5px}
+.stmt-total{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.stmt-total .big{font-size:30px;font-weight:700;line-height:1.1}
+.actions{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:14px}
+
+/* Reminders */
+.notif-banner{display:flex;align-items:center;gap:12px;background:var(--lime-soft);border-radius:18px;padding:14px;margin-bottom:14px}
+.notif-banner p{margin:0;flex:1;font-size:13.5px;font-weight:500}
+.rem{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.rem-top{display:flex;align-items:center;gap:12px}
+.rem-top .mid{flex:1;min-width:0}
+.rem-top .t1{font-weight:700;font-size:15px}
+.rem-top .t2{color:var(--muted);font-size:12.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.soon{background:var(--warn-soft);color:var(--warn)}
+.pill.overdue,.pill.today{background:var(--danger-soft);color:var(--danger)}
+.pill.ok,.pill.done{background:var(--ok-soft);color:var(--ok)}
+.pill.later{background:var(--surface2);color:var(--muted)}
+.rem-prog{margin-top:14px}
+.rem-prog .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.rem-prog .thin>i{background:var(--text)}
+.rem-act{display:flex;gap:8px;margin-top:14px}
+.rem-act .btn{flex:1}
+.oblig{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.oblig .big{font-size:26px;font-weight:700}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--danger);position:absolute;top:6px;inset-inline-end:calc(50% - 16px);border:2px solid var(--surface)}
+
+/* Settings */
+.set-group{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.set-title{font-size:12.5px;color:var(--muted);font-weight:600;margin:18px 6px 8px}
+.set-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);width:100%;text-align:start}
+.set-row:last-child{border-bottom:0}
+.set-row .lab{flex:1;min-width:0}
+.set-row .lab b{display:block;font-weight:600;font-size:14.5px}
+.set-row .lab small{color:var(--muted);font-size:12px}
+.set-row .ic{width:36px;height:36px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.set-row .ic svg{width:19px;height:19px}
+.set-row select.input,.set-row input.input{width:auto;height:40px;max-width:150px;border-radius:12px}
+.set-row .seg{width:100%;margin-top:10px}
+.set-row.col{flex-direction:column;align-items:stretch}
+.set-row.col .head{display:flex;align-items:center;gap:12px}
+.danger-text{color:var(--danger)}
+.foot{color:var(--muted);text-align:center;font-size:12px;margin:20px 0 6px}
+
+/* Tab bar */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--safe-b));width:min(508px,calc(100% - 24px));
+  height:68px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:color-mix(in srgb,var(--surface) 88%,transparent);
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.14);
+  border:1px solid var(--line);z-index:20}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10.5px;font-weight:600;height:100%;justify-content:center}
+.tab.on{color:var(--text)}
+.tab.on svg{stroke-width:2.2}
+.fab{width:56px;height:56px;border-radius:19px;background:var(--lime);color:var(--lime-ink);display:grid;place-items:center;margin:0 auto;
+  box-shadow:0 8px 22px rgba(150,200,60,.45);transform:translateY(-14px);transition:transform .15s}
+.fab:active{transform:translateY(-14px) scale(.94)}
+.fab svg{width:26px;height:26px;stroke-width:2.4}
+
+/* Sheet */
+.backdrop{position:fixed;inset:0;background:rgba(5,10,8,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
+.backdrop.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:100%;max-width:540px;transform:translate(-50%,105%);background:var(--bg);border-radius:28px 28px 0 0;
+  z-index:50;max-height:92dvh;overflow-y:auto;padding:10px 18px calc(18px + var(--safe-b));transition:transform .32s cubic-bezier(.2,.9,.25,1)}
+.sheet.show{transform:translate(-50%,0)}
+.grab{width:42px;height:5px;border-radius:99px;background:var(--line);margin:0 auto 10px}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sheet-h h3{margin:0;font-size:18px}
+.sheet .btns{display:flex;gap:10px;margin-top:6px}
+.sheet .btns .btn{flex:1}
+.confirm-msg{font-size:15.5px;margin:6px 0 20px;line-height:1.6}
+
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--safe-b));transform:translate(-50%,20px);background:var(--text);color:var(--bg);
+  padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:60;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.view{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (min-width:600px){#app{padding-top:24px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view"></div>
+</div>
+
+<nav class="tabbar" id="tabbar">
+  <button class="tab" data-tab="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span data-t="home"></span></button>
+  <button class="tab" data-tab="statement"><svg class="i" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9.5 13h6M9.5 17h4"/></svg><span data-t="statement"></span></button>
+  <div><button class="fab" id="fab" aria-label="add"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+  <button class="tab" data-tab="reminders"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span data-t="reminders"></span><i class="dot" id="remDot" hidden></i></button>
+  <button class="tab" data-tab="settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-t="settings"></span></button>
+</nav>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+(() => {
+'use strict';
+/* ================= Utilities ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const pad = (n) => String(n).padStart(2, '0');
+const dstr = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const ym = (s) => s.slice(0, 7);
+const parseD = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseD(s); d.setDate(d.getDate() + n); return dstr(d); };
+const dim = (y, m0) => new Date(y, m0 + 1, 0).getDate();
+const addMonths = (key, n) => { let [y, m] = key.split('-').map(Number); m = m - 1 + n; y += Math.floor(m / 12); m = ((m % 12) + 12) % 12; return y + '-' + pad(m + 1); };
+const monthDiff = (a, b) => { const [ay, am] = a.split('-').map(Number), [by, bm] = b.split('-').map(Number); return (by - ay) * 12 + (bm - am); };
+const sum = (arr) => arr.reduce((a, e) => a + (+e.amount || 0), 0);
+const normDigits = (s) => String(s).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٫,]/g, '.').replace(/[^\d.]/g, '');
+
+/* ================= Storage ================= */
+const LS_KEY = 'masroufi.v1';
+const DEF = { expenses: [], reminders: [], settings: { lang: 'ar', currency: 'EGP', theme: 'auto', budget: 0, notifyBefore: 2 } };
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY));
+    if (d && typeof d === 'object') return { expenses: d.expenses || [], reminders: d.reminders || [], settings: { ...DEF.settings, ...(d.settings || {}) } };
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(DEF));
+}
+let S = load();
+function save() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { toast(t('saveErr')); }
+  syncSchedule();
+}
+
+function idb() { return new Promise((res, rej) => { const q = indexedDB.open('masroufi', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+async function kvSet(k, v) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
+
+/* ================= i18n ================= */
+const I = {
+ar: {
+  appName: 'مصروفي', home: 'الرئيسية', statement: 'كشف الحساب', reminders: 'التذكيرات', settings: 'الإعدادات',
+  hello: 'أهلاً بيك 👋', thisMonth: 'مصروفات {0}', vsLast: 'عن الشهر السابق', same: 'نفس الشهر السابق', noPrev: 'أول شهر بمصروفات مسجلة',
+  today: 'اليوم', thisYear: 'سنة {0}', dailyAvg: 'متوسط يومي', budgetUsed: 'من الميزانية {0}', budgetLeft: 'متبقي {0}', budgetOver: 'تجاوزت بـ {0}',
+  byCategory: 'حسب الفئة', yearOverview: 'نظرة على سنة {0}', multiYear: 'على مدار السنين', allTime: 'الإجمالي الكلي', perMonthAvg: 'متوسط شهري {0}',
+  upcoming: 'مستحقات قريبة', recent: 'مصروفات الشهر', viewAll: 'عرض الكل', emptyTitle: 'ابدأ بتسجيل أول مصروف',
+  emptyBody: 'سجّل مصروفاتك أول بأول، وهتشوف صورة واضحة لشهرك وسنتك.', addFirst: 'إضافة مصروف', noMonth: 'مفيش مصروفات في الشهر ده',
+  newExpense: 'مصروف جديد', editExpense: 'تعديل المصروف', title: 'اسم المصروف', titlePh: 'مثال: سوبر ماركت', category: 'الفئة',
+  date: 'التاريخ', time: 'الساعة', note: 'ملاحظة (اختياري)', save: 'حفظ', delete: 'حذف', cancel: 'إلغاء', saved: 'تم الحفظ ✓', deleted: 'تم الحذف',
+  needAmount: 'اكتب مبلغ صحيح', needTitle: 'اكتب اسم المصروف', confirmDelete: 'حذف المصروف ده نهائيًا؟', saveErr: 'تعذر الحفظ على الجهاز',
+  pMonth: 'هذا الشهر', pLastMonth: 'الشهر الماضي', pYear: 'هذه السنة', pLastYear: 'السنة الماضية', pAll: 'الكل', pCustom: 'فترة مخصصة',
+  from: 'من', to: 'إلى', allCats: 'كل الفئات', search: 'ابحث باسم المصروف…', total: 'إجمالي الفترة', count: 'عدد العمليات', largest: 'أكبر مصروف',
+  avgDay: 'متوسط يومي', exportPdf: 'تصدير PDF', print: 'طباعة', noResults: 'لا توجد مصروفات تطابق البحث', generating: 'جاري تجهيز الملف…',
+  pdfDone: 'تم تنزيل الملف', reportTitle: 'كشف حساب المصروفات', period: 'الفترة', generatedOn: 'تاريخ الإصدار', colDate: 'التاريخ', colTime: 'الوقت',
+  colTitle: 'البيان', colCat: 'الفئة', colAmount: 'المبلغ', grandTotal: 'الإجمالي', catSummary: 'ملخص حسب الفئة', share: 'النسبة', ops: '{0} عملية',
+  monthlyObligations: 'إجمالي الالتزامات الشهرية', activeCount: '{0} التزام نشط', newReminder: 'تذكير جديد', editReminder: 'تعديل التذكير',
+  kMonthly: 'التزام شهري', kInstallment: 'قسط', dueDay: 'يوم الاستحقاق', months: 'عدد الأقساط', startMonth: 'أول شهر استحقاق',
+  everyMonthOn: 'يوم {0} من كل شهر', payNow: 'تم الدفع', markedPaid: 'اتسجل كمصروف ✓', dueToday: 'مستحق النهارده', dueIn: 'باقي {0} يوم', dueTomorrow: 'بكرة',
+  overdue: 'متأخر {0} يوم', done: 'اكتمل', progress: '{0} من {1} قسط', remaining: 'المتبقي {0}', addToCal: 'للتقويم',
+  noReminders: 'مفيش تذكيرات لسه', noRemindersBody: 'أضف أقساطك واشتراكاتك والتزاماتك الشهرية وهنفكرك بيها قبل ميعادها.',
+  enableNotif: 'فعّل الإشعارات عشان نفكرك قبل ميعاد كل قسط', enable: 'تفعيل', notifBlocked: 'الإشعارات مقفولة من إعدادات المتصفح',
+  notifUnsupported: 'المتصفح ده مش بيدعم الإشعارات — استخدم "للتقويم"', confirmDeleteRem: 'حذف التذكير ده؟', nextDue: 'الاستحقاق: {0}',
+  notifTitle: 'تذكير: {0}', notifSoon: 'مستحق يوم {0} — {1}', notifDue: 'مستحق النهارده — {0}', notifTest: 'الإشعارات شغالة ✓',
+  remPh: 'مثال: قسط العربية', amount: 'المبلغ', reminderNote: 'التذكير', calHint: 'تم تنزيل ملف التقويم — افتحه لإضافة التذكير',
+  language: 'اللغة', appearance: 'المظهر', tAuto: 'تلقائي', tLight: 'فاتح', tDark: 'داكن', currency: 'العملة', monthlyBudget: 'الميزانية الشهرية',
+  budgetHint: 'اكتب 0 لإلغاء الميزانية', notifications: 'الإشعارات', notifOn: 'مفعّلة', notifOff: 'غير مفعّلة', notifyBefore: 'التنبيه قبل الاستحقاق',
+  daysN: '{0} يوم', sameDay: 'يوم الاستحقاق', install: 'تثبيت التطبيق', installBody: 'ضيفه على الشاشة الرئيسية زي أي تطبيق',
+  installIos: 'من Safari: اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية"', installed: 'التطبيق مثبت ✓', data: 'البيانات', backup: 'تنزيل نسخة احتياطية',
+  backupBody: 'ملف JSON فيه كل بياناتك', restore: 'استرجاع نسخة احتياطية', wipe: 'مسح كل البيانات', confirmWipe: 'هيتم مسح كل المصروفات والتذكيرات نهائيًا. متأكد؟',
+  restored: 'تم الاسترجاع ✓', badFile: 'الملف غير صالح', storedLocally: 'بياناتك محفوظة على جهازك فقط — مفيش سيرفر.', general: 'عام',
+  yesterday: 'أمس', test: 'تجربة', budgetSet: 'تم تحديث الميزانية', fromPdf: 'كشف'
+},
+en: {
+  appName: 'Masroufi', home: 'Home', statement: 'Statement', reminders: 'Reminders', settings: 'Settings',
+  hello: 'Welcome back 👋', thisMonth: 'Spent in {0}', vsLast: 'vs last month', same: 'Same as last month', noPrev: 'First month on record',
+  today: 'Today', thisYear: 'Year {0}', dailyAvg: 'Daily avg', budgetUsed: 'of {0} budget', budgetLeft: '{0} left', budgetOver: 'Over by {0}',
+  byCategory: 'By category', yearOverview: '{0} at a glance', multiYear: 'Across the years', allTime: 'All-time total', perMonthAvg: '{0} / month avg',
+  upcoming: 'Due soon', recent: 'This month', viewAll: 'View all', emptyTitle: 'Log your first expense',
+  emptyBody: 'Track spending as it happens and get a clear picture of every month and year.', addFirst: 'Add expense', noMonth: 'No expenses this month',
+  newExpense: 'New expense', editExpense: 'Edit expense', title: 'Expense name', titlePh: 'e.g. Groceries', category: 'Category',
+  date: 'Date', time: 'Time', note: 'Note (optional)', save: 'Save', delete: 'Delete', cancel: 'Cancel', saved: 'Saved ✓', deleted: 'Deleted',
+  needAmount: 'Enter a valid amount', needTitle: 'Enter a name', confirmDelete: 'Delete this expense permanently?', saveErr: "Couldn't save on this device",
+  pMonth: 'This month', pLastMonth: 'Last month', pYear: 'This year', pLastYear: 'Last year', pAll: 'All', pCustom: 'Custom',
+  from: 'From', to: 'To', allCats: 'All categories', search: 'Search by name…', total: 'Period total', count: 'Transactions', largest: 'Largest',
+  avgDay: 'Daily avg', exportPdf: 'Export PDF', print: 'Print', noResults: 'No expenses match', generating: 'Preparing file…',
+  pdfDone: 'File downloaded', reportTitle: 'Expense Statement', period: 'Period', generatedOn: 'Generated', colDate: 'Date', colTime: 'Time',
+  colTitle: 'Description', colCat: 'Category', colAmount: 'Amount', grandTotal: 'Total', catSummary: 'Summary by category', share: 'Share', ops: '{0} items',
+  monthlyObligations: 'Monthly commitments', activeCount: '{0} active', newReminder: 'New reminder', editReminder: 'Edit reminder',
+  kMonthly: 'Monthly bill', kInstallment: 'Installment', dueDay: 'Due day', months: 'Number of installments', startMonth: 'First due month',
+  everyMonthOn: 'Day {0} of every month', payNow: 'Mark paid', markedPaid: 'Logged as expense ✓', dueToday: 'Due today', dueIn: 'In {0} days', dueTomorrow: 'Tomorrow',
+  overdue: '{0} days late', done: 'Completed', progress: '{0} of {1} paid', remaining: '{0} remaining', addToCal: 'Calendar',
+  noReminders: 'No reminders yet', noRemindersBody: "Add installments, subscriptions and monthly bills — we'll remind you before they're due.",
+  enableNotif: 'Turn on notifications to get reminded before each due date', enable: 'Enable', notifBlocked: 'Notifications are blocked in browser settings',
+  notifUnsupported: "This browser doesn't support notifications — use \"Calendar\"", confirmDeleteRem: 'Delete this reminder?', nextDue: 'Due {0}',
+  notifTitle: 'Reminder: {0}', notifSoon: 'Due {0} — {1}', notifDue: 'Due today — {0}', notifTest: 'Notifications are working ✓',
+  remPh: 'e.g. Car loan', amount: 'Amount', reminderNote: 'Reminder', calHint: 'Calendar file downloaded — open it to add the reminder',
+  language: 'Language', appearance: 'Appearance', tAuto: 'Auto', tLight: 'Light', tDark: 'Dark', currency: 'Currency', monthlyBudget: 'Monthly budget',
+  budgetHint: 'Set 0 to turn off', notifications: 'Notifications', notifOn: 'On', notifOff: 'Off', notifyBefore: 'Remind me before',
+  daysN: '{0} days', sameDay: 'On the day', install: 'Install app', installBody: 'Add it to your home screen like any app',
+  installIos: 'In Safari: tap Share, then "Add to Home Screen"', installed: 'App installed ✓', data: 'Data', backup: 'Download backup',
+  backupBody: 'A JSON file with all your data', restore: 'Restore backup', wipe: 'Erase all data', confirmWipe: 'This permanently erases all expenses and reminders. Continue?',
+  restored: 'Restored ✓', badFile: 'Invalid file', storedLocally: 'Your data stays on this device — no server.', general: 'General',
+  yesterday: 'Yesterday', test: 'Test', budgetSet: 'Budget updated', fromPdf: 'statement'
+}};
+const t = (k, ...a) => { let s = (I[S.settings.lang] || I.ar)[k] ?? I.en[k] ?? k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; };
+const isAr = () => S.settings.lang === 'ar';
+const loc = () => isAr() ? 'ar-EG-u-nu-latn' : 'en-US';
+
+/* ================= Categories ================= */
+const CATS = [
+  { id: 'food', e: '🍔', c: '#F59E0B', ar: 'أكل وشرب', en: 'Food' },
+  { id: 'groceries', e: '🛒', c: '#10B981', ar: 'بقالة', en: 'Groceries' },
+  { id: 'transport', e: '🚗', c: '#3B82F6', ar: 'مواصلات', en: 'Transport' },
+  { id: 'bills', e: '💡', c: '#EAB308', ar: 'فواتير', en: 'Bills' },
+  { id: 'installments', e: '💳', c: '#8B5CF6', ar: 'أقساط', en: 'Installments' },
+  { id: 'home', e: '🏠', c: '#14B8A6', ar: 'البيت', en: 'Home' },
+  { id: 'shopping', e: '🛍️', c: '#EC4899', ar: 'تسوق', en: 'Shopping' },
+  { id: 'health', e: '💊', c: '#EF4444', ar: 'صحة', en: 'Health' },
+  { id: 'education', e: '📚', c: '#6366F1', ar: 'تعليم', en: 'Education' },
+  { id: 'fun', e: '🎬', c: '#F97316', ar: 'ترفيه', en: 'Fun' },
+  { id: 'subs', e: '📱', c: '#06B6D4', ar: 'اشتراكات', en: 'Subscriptions' },
+  { id: 'other', e: '📦', c: '#64748B', ar: 'أخرى', en: 'Other' }
+];
+const cat = (id) => CATS.find((c) => c.id === id) || CATS[CATS.length - 1];
+const catName = (id) => cat(id)[S.settings.lang] || cat(id).en;
+const catIco = (id, size) => { const c = cat(id); return `<span class="cat-ico" style="background:${c.c}1f${size ? `;width:${size}px;height:${size}px` : ''}">${c.e}</span>`; };
+
+const CURRENCIES = ['EGP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'USD', 'EUR', 'GBP'];
+
+/* ================= Formatting ================= */
+function money(n, opts = {}) {
+  const cur = S.settings.currency;
+  const big = opts.compact && Math.abs(n) >= 100000;
+  try { return new Intl.NumberFormat(loc(), { style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: opts.compact ? 0 : 2, ...(big ? { notation: 'compact' } : {}) }).format(n || 0); }
+  catch (e) { return num(n) + ' ' + cur; }
+}
+const num = (n, d = 2) => new Intl.NumberFormat(loc(), { maximumFractionDigits: d }).format(n || 0);
+const compact = (n) => new Intl.NumberFormat(loc(), { notation: 'compact', maximumFractionDigits: 1 }).format(n || 0);
+const curSymbol = () => { try { return new Intl.NumberFormat(loc(), { style: 'currency', currency: S.settings.currency }).formatToParts(0).find((p) => p.type === 'currency').value; } catch (e) { return S.settings.currency; } };
+const monthLabel = (y, m0, short) => new Intl.DateTimeFormat(loc(), { month: short ? 'short' : 'long', year: short ? undefined : 'numeric' }).format(new Date(y, m0, 1));
+const monthOnly = (y, m0) => new Intl.DateTimeFormat(loc(), { month: 'long' }).format(new Date(y, m0, 1));
+const fmtDate = (s, o = { day: 'numeric', month: 'short', year: 'numeric' }) => new Intl.DateTimeFormat(loc(), o).format(parseD(s));
+const fmtTime = (hm) => { if (!hm) return ''; const [h, m] = hm.split(':').map(Number); return new Intl.DateTimeFormat(loc(), { hour: 'numeric', minute: '2-digit' }).format(new Date(2020, 0, 1, h, m)); };
+function dayLabel(s) {
+  const today = dstr();
+  if (s === today) return t('today');
+  if (s === addDays(today, -1)) return t('yesterday');
+  return new Intl.DateTimeFormat(loc(), { weekday: 'long', day: 'numeric', month: 'long' }).format(parseD(s));
+}
+
+/* ================= Icons ================= */
+const ICON = {
+  chev: '<svg class="i flip" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>',
+  chevR: '<svg class="i flip" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',
+  close: '<svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  search: '<svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  pdf: '<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>',
+  print: '<svg class="i" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>',
+  csv: '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>',
+  plus: '<svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  cal: '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  edit: '<svg class="i" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  bell: '<svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  globe: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>',
+  sun: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  coin: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a2.5 2.5 0 0 0-2.5-1.5c-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2A2.5 2.5 0 0 1 9.5 15M12 6v1.5M12 16.5V18"/></svg>',
+  target: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+  phone: '<svg class="i" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>',
+  down: '<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>',
+  up: '<svg class="i" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M5 3h14"/></svg>',
+  trash: '<svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
+  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+};
+
+/* ================= App state ================= */
+const now0 = new Date();
+const V = {
+  tab: 'home', y: now0.getFullYear(), m: now0.getMonth(),
+  stmt: { preset: 'month', from: dstr(new Date(now0.getFullYear(), now0.getMonth(), 1)), to: dstr(), cat: 'all', q: '' }
+};
+
+function applyTheme() {
+  const th = S.settings.theme;
+  if (th === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', th);
+  const dark = th === 'dark' || (th === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  $('meta[name="theme-color"]').setAttribute('content', dark ? '#0A110E' : '#F2F4EF');
+}
+function applyLang() {
+  document.documentElement.lang = S.settings.lang;
+  document.documentElement.dir = isAr() ? 'rtl' : 'ltr';
+  document.title = t('appName');
+  $$('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+}
+
+function go(tab) {
+  V.tab = tab;
+  if (location.hash !== '#' + tab) history.replaceState(null, '', '#' + tab);
+  render();
+  window.scrollTo({ top: 0 });
+}
+function render() {
+  $$('.tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === V.tab));
+  const fn = { home: renderHome, statement: renderStatement, reminders: renderReminders, settings: renderSettings }[V.tab] || renderHome;
+  $('#view').innerHTML = `<div class="view">${fn()}</div>`;
+  bindView();
+  updateRemDot();
+}
+
+/* ================= HOME ================= */
+function renderHome() {
+  const { y, m } = V;
+  const key = y + '-' + pad(m + 1);
+  const all = S.expenses;
+  const monthEx = all.filter((e) => ym(e.date) === key);
+  const total = sum(monthEx);
+  const prevKey = addMonths(key, -1);
+  const prevTotal = sum(all.filter((e) => ym(e.date) === prevKey));
+  const isCurMonth = key === ym(dstr());
+  const atLatest = monthDiff(key, ym(dstr())) <= 0;
+
+  const header = `
+    <header class="topbar">
+      <div><p class="sub">${t('hello')}</p><h1>${t('appName')}</h1></div>
+      <div class="month-switch">
+        <button data-act="prevMonth" aria-label="prev">${ICON.chevR}</button>
+        <span>${esc(monthLabel(y, m, false))}</span>
+        <button data-act="nextMonth" aria-label="next" ${atLatest ? 'disabled' : ''}>${ICON.chev}</button>
+      </div>
+    </header>`;
+
+  if (!all.length) {
+    return header + `<div class="card empty"><div class="art">💸</div><h3>${t('emptyTitle')}</h3><p>${t('emptyBody')}</p>
+      <button class="btn primary" data-act="add">${ICON.plus}${t('addFirst')}</button></div>` + upcomingBlock();
+  }
+
+  // delta
+  let delta = `<span class="delta">${t('noPrev')}</span>`;
+  if (prevTotal > 0) {
+    const p = ((total - prevTotal) / prevTotal) * 100;
+    if (Math.abs(p) < 0.5) delta = `<span class="delta">${t('same')}</span>`;
+    else delta = `<span class="delta ${p > 0 ? 'up' : 'down'}"><b>${p > 0 ? '▲' : '▼'} ${num(Math.abs(p), 0)}%</b> ${t('vsLast')}</span>`;
+  }
+  // budget
+  const B = +S.settings.budget || 0;
+  let budget = '';
+  if (B > 0) {
+    const pct = Math.min(100, (total / B) * 100);
+    const over = total > B;
+    budget = `<div class="budget"><div class="row"><span>${num((total / B) * 100, 0)}% ${t('budgetUsed', money(B, { compact: 1 }))}</span>
+      <span>${over ? t('budgetOver', money(total - B, { compact: 1 })) : t('budgetLeft', money(B - total, { compact: 1 }))}</span></div>
+      <div class="bar ${over ? 'over' : ''}"><i style="width:${pct}%"></i></div></div>`;
+  }
+  const hero = `<section class="hero"><p class="lbl">${t('thisMonth', esc(monthOnly(y, m)))}</p>
+    <p class="big num">${money(total)}</p>${delta}${budget}</section>`;
+
+  // stats
+  const yearTotal = sum(all.filter((e) => e.date.startsWith(y + '-')));
+  const todayTotal = sum(all.filter((e) => e.date === dstr()));
+  const days = isCurMonth ? now0.getDate() : dim(y, m);
+  const stats = `<div class="stats">
+    <div class="stat"><p class="k">${t('today')}</p><p class="v num">${money(todayTotal, { compact: 1 })}</p></div>
+    <div class="stat"><p class="k">${t('dailyAvg')}</p><p class="v num">${money(total / days, { compact: 1 })}</p></div>
+    <div class="stat"><p class="k">${t('thisYear', y)}</p><p class="v num">${money(yearTotal, { compact: 1 })}</p></div></div>`;
+
+  // categories
+  let cats = '';
+  if (monthEx.length) {
+    const g = {};
+    monthEx.forEach((e) => { g[e.cat] = (g[e.cat] || 0) + (+e.amount); });
+    const arr = Object.entries(g).sort((a, b) => b[1] - a[1]);
+    const max = arr[0][1];
+    cats = `<section class="card"><div class="card-h"><h3>${t('byCategory')}</h3></div>${arr.slice(0, 6).map(([id, v]) => `
+      <div class="cat-row">${catIco(id)}<div class="cat-main"><div class="cat-top"><span>${esc(catName(id))}<span class="pct">${num((v / total) * 100, 0)}%</span></span><span class="num">${money(v)}</span></div>
+      <div class="thin"><i style="width:${(v / max) * 100}%;background:${cat(id).c}"></i></div></div></div>`).join('')}</section>`;
+  }
+
+  // year chart
+  const mt = Array.from({ length: 12 }, (_, i) => sum(all.filter((e) => ym(e.date) === y + '-' + pad(i + 1))));
+  const mx = Math.max(...mt, 1);
+  const yearChart = `<section class="card"><div class="card-h"><h3>${t('yearOverview', y)}</h3><span class="link num">${money(yearTotal, { compact: 1 })}</span></div>
+    <div class="ybars">${mt.map((v, i) => `<button class="ybar ${v ? 'has' : ''} ${i === m ? 'sel' : ''}" data-act="pickMonth" data-m="${i}" aria-label="${esc(monthOnly(y, i))}">
+      <div class="col" style="height:${Math.max(3, (v / mx) * 100)}%">${i === m && v ? `<span class="tip num">${compact(v)}</span>` : ''}</div>
+      <span class="m">${isAr() ? num(i + 1, 0) : esc(monthLabel(y, i, true))}</span></button>`).join('')}</div></section>`;
+
+  // multi-year
+  const yg = {};
+  all.forEach((e) => { const yy = e.date.slice(0, 4); (yg[yy] = yg[yy] || { t: 0, ms: new Set() }); yg[yy].t += +e.amount; yg[yy].ms.add(ym(e.date)); });
+  const years = Object.entries(yg).sort((a, b) => b[0] - a[0]);
+  const ymax = Math.max(...years.map((x) => x[1].t), 1);
+  const allTime = years.reduce((a, x) => a + x[1].t, 0);
+  const multi = `<section class="card"><div class="card-h"><h3>${t('multiYear')}</h3></div>
+    ${years.map(([yy, o]) => `<button class="year-row" style="width:100%" data-act="pickYear" data-y="${yy}"><span class="y num">${yy}</span>
+      <div class="thin"><i style="width:${(o.t / ymax) * 100}%;background:${+yy === y ? 'var(--lime)' : 'var(--text)'}"></i></div>
+      <span class="t"><b class="num">${money(o.t, { compact: 1 })}</b><small>${t('perMonthAvg', money(o.t / o.ms.size, { compact: 1 }))}</small></span></button>`).join('')}
+    <div class="alltime"><span>${t('allTime')}</span><b class="num">${money(allTime)}</b></div></section>`;
+
+  // recent
+  const rec = monthEx.slice().sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time)).slice(0, 6);
+  const recent = `<section class="card"><div class="card-h"><h3>${t('recent')}</h3>${monthEx.length ? `<button class="link" data-act="seeMonth">${t('viewAll')}${ICON.chev}</button>` : ''}</div>
+    ${rec.length ? `<div class="list">${rec.map(itemRow).join('')}</div>` : `<p style="color:var(--muted);margin:0;font-size:14px">${t('noMonth')}</p>`}</section>`;
+
+  return header + hero + stats + upcomingBlock() + cats + yearChart + multi + recent;
+}
+
+function itemRow(e) {
+  return `<button class="item" data-act="edit" data-id="${e.id}">${catIco(e.cat)}<div class="mid"><div class="t1">${esc(e.title)}</div>
+    <div class="t2">${esc(catName(e.cat))} · ${esc(fmtDate(e.date, { day: 'numeric', month: 'short' }))} · ${esc(fmtTime(e.time))}</div></div>
+    <span class="amt num">${money(e.amount)}</span></button>`;
+}
+
+function upcomingBlock() {
+  const list = S.reminders.map((r) => ({ r, i: remInfo(r) })).filter((x) => x.i.status !== 'done' && x.i.days <= 7).sort((a, b) => a.i.days - b.i.days);
+  if (!list.length) return '';
+  return `<section class="card"><div class="card-h"><h3>${t('upcoming')}</h3><button class="link" data-act="goRem">${t('viewAll')}${ICON.chev}</button></div>
+    <div class="list">${list.slice(0, 4).map(({ r, i }) => `<div class="item">${catIco(r.cat)}<div class="mid"><div class="t1">${esc(r.title)}</div>
+      <div class="t2 num">${money(r.amount)}</div></div>${statusPill(i)}</div>`).join('')}</div></section>`;
+}
+
+/* ================= Expense sheet ================= */
+function openExpense(id) {
+  const ex = id ? S.expenses.find((e) => e.id === id) : null;
+  const e = ex || { title: '', amount: '', cat: 'food', date: dstr(), time: nowTime(), note: '' };
+  const titles = [...new Set(S.expenses.map((x) => x.title))].slice(-60);
+  openSheet(`
+    <div class="sheet-h"><h3>${ex ? t('editExpense') : t('newExpense')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    <div class="amount-box"><input id="fAmount" inputmode="decimal" placeholder="0" value="${ex ? esc(e.amount) : ''}" autocomplete="off"><span class="cur">${esc(curSymbol())}</span></div>
+    <label class="field"><span>${t('title')}</span><input class="input" id="fTitle" list="titles" placeholder="${t('titlePh')}" value="${esc(e.title)}" maxlength="80"></label>
+    <datalist id="titles">${titles.map((x) => `<option value="${esc(x)}">`).join('')}</datalist>
+    <div class="field"><span>${t('category')}</span></div>
+    <div class="chips" id="fCats">${CATS.map((c) => `<button type="button" class="chip ${c.id === e.cat ? 'on' : ''}" data-cat="${c.id}"><span class="e">${c.e}</span>${esc(c[S.settings.lang])}</button>`).join('')}</div>
+    <div class="row2"><label class="field"><span>${t('date')}</span><input class="input" type="date" id="fDate" value="${e.date}"></label>
+      <label class="field"><span>${t('time')}</span><input class="input" type="time" id="fTime" value="${e.time}"></label></div>
+    <label class="field"><span>${t('note')}</span><textarea class="input" id="fNote" rows="2" maxlength="300">${esc(e.note)}</textarea></label>
+    <div class="btns">${ex ? `<button class="btn danger" id="fDel" style="flex:0 0 auto">${ICON.trash}</button>` : ''}<button class="btn primary" id="fSave">${t('save')}</button></div>`,
+  (sh) => {
+    let selCat = e.cat;
+    const amt = $('#fAmount', sh);
+    if (!ex) setTimeout(() => amt.focus(), 320);
+    amt.addEventListener('input', () => { const v = normDigits(amt.value); if (v !== amt.value) amt.value = v; });
+    $('#fTitle', sh).addEventListener('change', (ev) => {
+      // auto-pick category from previous expense with same name
+      const prev = S.expenses.slice().reverse().find((x) => x.title === ev.target.value.trim());
+      if (prev) { selCat = prev.cat; $$('.chip', sh).forEach((c) => c.classList.toggle('on', c.dataset.cat === selCat)); }
+    });
+    $('#fCats', sh).addEventListener('click', (ev) => {
+      const b = ev.target.closest('.chip'); if (!b) return;
+      selCat = b.dataset.cat; $$('.chip', sh).forEach((c) => c.classList.toggle('on', c === b));
+    });
+    $('#fSave', sh).addEventListener('click', () => {
+      const amount = parseFloat(normDigits(amt.value));
+      const title = $('#fTitle', sh).value.trim();
+      if (!(amount > 0)) { toast(t('needAmount')); amt.focus(); return; }
+      if (!title) { toast(t('needTitle')); $('#fTitle', sh).focus(); return; }
+      const rec = { id: ex ? ex.id : uid(), title, amount: Math.round(amount * 100) / 100, cat: selCat,
+        date: $('#fDate', sh).value || dstr(), time: $('#fTime', sh).value || nowTime(), note: $('#fNote', sh).value.trim() };
+      if (ex) Object.assign(ex, rec); else S.expenses.push(rec);
+      save(); closeSheet(); toast(t('saved'));
+      if (!ex && V.tab === 'home') { const d = parseD(rec.date); V.y = d.getFullYear(); V.m = d.getMonth(); }
+      render();
+    });
+    if (ex) $('#fDel', sh).addEventListener('click', async () => {
+      if (!(await confirmBox(t('confirmDelete'), t('delete')))) return;
+      S.expenses = S.expenses.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
+    });
+  });
+}
+
+/* ================= STATEMENT ================= */
+function stmtRange() {
+  const s = V.stmt, n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  switch (s.preset) {
+    case 'month': return [dstr(new Date(y, m, 1)), dstr(new Date(y, m + 1, 0))];
+    case 'lastMonth': return [dstr(new Date(y, m - 1, 1)), dstr(new Date(y, m, 0))];
+    case 'year': return [y + '-01-01', y + '-12-31'];
+    case 'lastYear': return [(y - 1) + '-01-01', (y - 1) + '-12-31'];
+    case 'all': { const ds = S.expenses.map((e) => e.date).sort(); return [ds[0] || dstr(), ds[ds.length - 1] || dstr()]; }
+    default: return s.from <= s.to ? [s.from, s.to] : [s.to, s.from];
+  }
+}
+function stmtRows() {
+  const [a, b] = stmtRange(); const s = V.stmt; const q = s.q.trim().toLowerCase();
+  return S.expenses.filter((e) => e.date >= a && e.date <= b && (s.cat === 'all' || e.cat === s.cat) &&
+    (!q || e.title.toLowerCase().includes(q) || (e.note || '').toLowerCase().includes(q)))
+    .sort((x, y) => (y.date + y.time).localeCompare(x.date + x.time));
+}
+function renderStatement() {
+  const s = V.stmt;
+  const presets = [['month', 'pMonth'], ['lastMonth', 'pLastMonth'], ['year', 'pYear'], ['lastYear', 'pLastYear'], ['all', 'pAll'], ['custom', 'pCustom']];
+  const rows = stmtRows();
+  const [a, b] = stmtRange();
+  const total = sum(rows);
+  const nDays = Math.max(1, Math.round((parseD(b) - parseD(a)) / 864e5) + 1);
+  const largest = rows.reduce((mx, e) => (+e.amount > (mx ? +mx.amount : -1) ? e : mx), null);
+  // group by day
+  const groups = [];
+  rows.forEach((e) => { const g = groups[groups.length - 1]; if (g && g.d === e.date) g.items.push(e); else groups.push({ d: e.date, items: [e] }); });
+
+  return `<header class="topbar"><div><p class="sub">${esc(fmtDate(a))} — ${esc(fmtDate(b))}</p><h1>${t('statement')}</h1></div></header>
+  <div class="chips" id="presets">${presets.map(([k, l]) => `<button class="chip ${s.preset === k ? 'on' : ''}" data-preset="${k}">${t(l)}</button>`).join('')}</div>
+  <div class="filters">
+    ${s.preset === 'custom' ? `<div class="row2"><label class="field" style="margin:0"><span>${t('from')}</span><input class="input" type="date" id="sFrom" value="${s.from}"></label>
+      <label class="field" style="margin:0"><span>${t('to')}</span><input class="input" type="date" id="sTo" value="${s.to}"></label></div>` : ''}
+    <div class="row2" style="grid-template-columns:1.3fr 1fr">
+      <div class="search">${ICON.search}<input class="input" id="sQ" type="search" placeholder="${t('search')}" value="${esc(s.q)}"></div>
+      <select class="input" id="sCat"><option value="all">${t('allCats')}</option>${CATS.map((c) => `<option value="${c.id}" ${s.cat === c.id ? 'selected' : ''}>${c.e} ${esc(c[S.settings.lang])}</option>`).join('')}</select>
+    </div>
+  </div>
+  <section class="card" id="stmtSum">
+    <div class="stmt-total"><div><p style="margin:0 0 2px;color:var(--muted);font-size:13px">${t('total')}</p><div class="big num">${money(total)}</div></div>
+      <span class="pill later">${t('ops', num(rows.length, 0))}</span></div>
+    <div class="sum-grid"><div class="s"><small>${t('avgDay')}</small><b class="num">${money(total / nDays)}</b></div>
+      <div class="s"><small>${t('largest')}</small><b class="num">${largest ? money(largest.amount) : '—'}</b></div></div>
+    <div class="actions">
+      <button class="btn dark" data-act="pdf" ${rows.length ? '' : 'disabled style="opacity:.4"'}>${ICON.pdf}${t('exportPdf')}</button>
+      <button class="btn ghost" data-act="print" aria-label="${t('print')}" ${rows.length ? '' : 'disabled style="opacity:.4"'}>${ICON.print}</button>
+      <button class="btn ghost" data-act="csv" aria-label="CSV" ${rows.length ? '' : 'disabled style="opacity:.4"'}>${ICON.csv}</button>
+    </div>
+  </section>
+  ${rows.length ? groups.map((g) => `<div class="day-h"><span>${esc(dayLabel(g.d))}</span><span class="num">${money(sum(g.items))}</span></div>
+    <section class="card" style="padding:4px 16px;margin-bottom:6px"><div class="list">${g.items.map(itemRow).join('')}</div></section>`).join('')
+    : `<div class="card empty"><div class="art">🔎</div><p style="margin:0">${t('noResults')}</p></div>`}`;
+}
+
+/* ---------- Report (PDF / print) ---------- */
+function reportHTML() {
+  const rows = stmtRows().slice().reverse();
+  const [a, b] = stmtRange();
+  const total = sum(rows);
+  const g = {}; rows.forEach((e) => { g[e.cat] = (g[e.cat] || 0) + +e.amount; });
+  const cats = Object.entries(g).sort((x, y) => y[1] - x[1]);
+  const dir = isAr() ? 'rtl' : 'ltr';
+  const filt = V.stmt.cat !== 'all' ? ` · ${esc(catName(V.stmt.cat))}` : '';
+  const q = V.stmt.q.trim() ? ` · "${esc(V.stmt.q.trim())}"` : '';
+  return `<div class="rep" dir="${dir}" lang="${S.settings.lang}">
+  <style>
+    .rep{width:760px;padding:36px 40px;background:#fff;color:#0E1714;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:12.5px;line-height:1.55}
+    .rep *{box-sizing:border-box}
+    .rep .hd{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0F1F19;padding-bottom:16px;margin-bottom:18px}
+    .rep .brand{display:flex;align-items:center;gap:10px}
+    .rep .logo{width:40px;height:40px;border-radius:11px;background:#0F1F19;display:flex;align-items:center;justify-content:center}
+    .rep .logo i{width:22px;height:15px;border-radius:4px;background:#C6F36B;display:block}
+    .rep h1{font-size:20px;margin:0}
+    .rep .muted{color:#68766E}
+    .rep .meta{text-align:end;font-size:11.5px}
+    .rep .boxes{display:flex;gap:10px;margin-bottom:18px}
+    .rep .box{flex:1;background:#F2F4EF;border-radius:10px;padding:10px 12px}
+    .rep .box small{display:block;color:#68766E;font-size:10.5px}
+    .rep .box b{font-size:15px}
+    .rep .box.hl{background:#0F1F19;color:#fff}.rep .box.hl small{color:#C6F36B}
+    .rep h2{font-size:13px;margin:16px 0 8px}
+    .rep table{width:100%;border-collapse:collapse}
+    .rep th{background:#0F1F19;color:#fff;font-weight:600;font-size:11px;padding:8px;text-align:start}
+    .rep td{padding:7px 8px;border-bottom:1px solid #E2E7DF;vertical-align:top}
+    .rep tr{page-break-inside:avoid;break-inside:avoid}
+    .rep tbody tr:nth-child(even) td{background:#FAFBF8}
+    .rep .amt{text-align:end;white-space:nowrap;font-weight:600}
+    .rep .tot td{background:#C6F36B!important;font-weight:700;font-size:13.5px;border:0}
+    .rep .ft{margin-top:22px;font-size:10.5px;color:#68766E;text-align:center}
+    .rep .nw{white-space:nowrap}
+  </style>
+  <div class="hd"><div class="brand"><div class="logo"><i></i></div><div><h1>${t('reportTitle')}</h1><div class="muted">${t('appName')}${filt}${q}</div></div></div>
+    <div class="meta"><div><b>${t('period')}:</b> ${esc(fmtDate(a))} — ${esc(fmtDate(b))}</div><div class="muted">${t('generatedOn')}: ${esc(fmtDate(dstr()))} ${esc(fmtTime(nowTime()))}</div></div></div>
+  <div class="boxes"><div class="box hl"><small>${t('grandTotal')}</small><b>${money(total)}</b></div>
+    <div class="box"><small>${t('count')}</small><b>${num(rows.length, 0)}</b></div>
+    <div class="box"><small>${t('avgDay')}</small><b>${money(total / Math.max(1, Math.round((parseD(b) - parseD(a)) / 864e5) + 1))}</b></div></div>
+  <h2>${t('catSummary')}</h2>
+  <table><thead><tr><th>${t('colCat')}</th><th>${t('count')}</th><th>${t('share')}</th><th class="amt">${t('colAmount')}</th></tr></thead><tbody>
+    ${cats.map(([id, v]) => `<tr><td>${cat(id).e} ${esc(catName(id))}</td><td>${num(rows.filter((e) => e.cat === id).length, 0)}</td><td>${num((v / total) * 100, 1)}%</td><td class="amt">${money(v)}</td></tr>`).join('')}
+  </tbody></table>
+  <h2>${t('statement')}</h2>
+  <table><thead><tr><th style="width:92px">${t('colDate')}</th><th style="width:70px">${t('colTime')}</th><th>${t('colTitle')}</th><th style="width:110px">${t('colCat')}</th><th class="amt" style="width:110px">${t('colAmount')}</th></tr></thead><tbody>
+    ${rows.map((e) => `<tr><td class="nw">${esc(fmtDate(e.date, { day: '2-digit', month: '2-digit', year: 'numeric' }))}</td><td class="nw">${esc(fmtTime(e.time))}</td>
+      <td>${esc(e.title)}${e.note ? `<div class="muted" style="font-size:10.5px">${esc(e.note)}</div>` : ''}</td><td>${esc(catName(e.cat))}</td><td class="amt">${money(e.amount)}</td></tr>`).join('')}
+    <tr class="tot"><td colspan="4">${t('grandTotal')}</td><td class="amt">${money(total)}</td></tr>
+  </tbody></table>
+  <div class="ft">${t('appName')} · ${esc(fmtDate(dstr()))}</div></div>`;
+}
+function loadScript(src) {
+  return new Promise((res, rej) => { if ([...document.scripts].some((s) => s.src === src)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+async function exportPDF() {
+  toast(t('generating'), 4000);
+  const [a, b] = stmtRange();
+  const fname = `${isAr() ? 'كشف-مصروفات' : 'expense-statement'}_${a}_${b}.pdf`;
+  try {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+    await document.fonts.ready;
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed;top:0;left:-9999px;width:760px;z-index:-1';
+    holder.innerHTML = reportHTML();
+    document.body.appendChild(holder);
+    await window.html2pdf().set({
+      margin: [8, 0, 10, 0], filename: fname, image: { type: 'jpeg', quality: 0.96 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', letterRendering: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }, pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
+    }).from(holder.firstElementChild).save();
+    holder.remove();
+    toast(t('pdfDone'));
+  } catch (err) {
+    console.warn('PDF lib failed, falling back to print', err);
+    printReport();
+  }
+}
+function printReport() {
+  const fr = document.createElement('iframe');
+  fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(fr);
+  const d = fr.contentDocument;
+  d.open();
+  d.write(`<!doctype html><html dir="${isAr() ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><title>${t('reportTitle')}</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>@page{size:A4;margin:10mm}body{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.rep{width:auto!important;padding:0!important}</style></head><body>${reportHTML()}</body></html>`);
+  d.close();
+  const go = () => { fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(() => fr.remove(), 2000); };
+  (fr.contentDocument.fonts ? fr.contentDocument.fonts.ready : Promise.resolve()).then(() => setTimeout(go, 350));
+}
+function exportCSV() {
+  const rows = stmtRows().slice().reverse();
+  const head = [t('colDate'), t('colTime'), t('colTitle'), t('colCat'), t('colAmount'), t('note')];
+  const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const body = rows.map((e) => [e.date, e.time, e.title, catName(e.cat), e.amount, e.note || ''].map(q).join(','));
+  const [a, b] = stmtRange();
+  download(`expenses_${a}_${b}.csv`, '﻿' + [head.map(q).join(','), ...body].join('\r\n'), 'text/csv;charset=utf-8');
+}
+function download(name, content, type) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
+}
+
+/* ================= REMINDERS ================= */
+function dueDateOf(r, key) { const [y, m] = key.split('-').map(Number); return new Date(y, m - 1, Math.min(+r.day, dim(y, m - 1))); }
+function remInfo(r) {
+  const today = parseD(dstr());
+  const cur = ym(dstr());
+  const paid = new Set(r.paid || []);
+  const inst = r.kind === 'installment';
+  const total = inst ? Math.max(1, +r.total || 1) : Infinity;
+  const last = inst ? addMonths(r.start, total - 1) : null;
+  const paidCount = inst ? [...paid].filter((k) => monthDiff(r.start, k) >= 0 && monthDiff(k, last) >= 0).length : paid.size;
+  // monthly bills: only look back one month so old unmarked months don't pile up
+  let k = inst ? r.start : (monthDiff(r.start, addMonths(cur, -1)) > 0 ? addMonths(cur, -1) : r.start);
+  let due = null, guard = 0;
+  while (guard++ < 1200) { if (last && monthDiff(k, last) < 0) break; if (!paid.has(k)) { due = k; break; } k = addMonths(k, 1); }
+  if (!due) return { status: 'done', days: Infinity, paidCount, total };
+  const dd = dueDateOf(r, due);
+  const days = Math.round((dd - today) / 864e5);
+  const nb = r.notifyBefore ?? S.settings.notifyBefore;
+  let status = days < 0 ? 'overdue' : days === 0 ? 'today' : days <= Math.max(nb, 3) ? 'soon' : 'later';
+  if (status === 'later' && paid.has(cur)) status = 'ok';
+  return { status, days, due, dueDate: dd, paidCount, total, remaining: inst ? (total - paidCount) * +r.amount : null, paidCur: paid.has(cur) };
+}
+function statusPill(i) {
+  const m = { overdue: t('overdue', num(-i.days, 0)), today: t('dueToday'), soon: i.days === 1 ? t('dueTomorrow') : t('dueIn', num(i.days, 0)),
+    later: t('dueIn', num(i.days, 0)), ok: '✓ ' + t('dueIn', num(i.days, 0)), done: '✓ ' + t('done') };
+  return `<span class="pill ${i.status}">${m[i.status]}</span>`;
+}
+function renderReminders() {
+  const list = S.reminders.map((r) => ({ r, i: remInfo(r) }));
+  const order = { overdue: 0, today: 1, soon: 2, later: 3, ok: 4, done: 5 };
+  list.sort((a, b) => order[a.i.status] - order[b.i.status] || a.i.days - b.i.days);
+  const active = list.filter((x) => x.i.status !== 'done');
+  const monthly = sum(active.map((x) => x.r));
+
+  let banner = '';
+  if (S.reminders.length) {
+    if (!('Notification' in window)) banner = `<div class="notif-banner">${ICON.bell}<p>${t('notifUnsupported')}</p></div>`;
+    else if (Notification.permission === 'default') banner = `<div class="notif-banner">${ICON.bell}<p>${t('enableNotif')}</p><button class="btn dark sm" data-act="notif">${t('enable')}</button></div>`;
+    else if (Notification.permission === 'denied') banner = `<div class="notif-banner" style="background:var(--warn-soft)">${ICON.bell}<p>${t('notifBlocked')}</p></div>`;
+  }
+  const head = `<header class="topbar"><div><p class="sub">${t('activeCount', num(active.length, 0))}</p><h1>${t('reminders')}</h1></div>
+    <button class="icon-btn" data-act="newRem" aria-label="${t('newReminder')}">${ICON.plus}</button></header>`;
+  if (!S.reminders.length) return head + `<div class="card empty"><div class="art">🔔</div><h3>${t('noReminders')}</h3><p>${t('noRemindersBody')}</p>
+    <button class="btn primary" data-act="newRem">${ICON.plus}${t('newReminder')}</button></div>`;
+
+  return head + `<section class="hero" style="padding:18px 20px"><div class="oblig"><div><p class="lbl">${t('monthlyObligations')}</p><p class="big num" style="font-size:30px">${money(monthly)}</p></div>
+    <span style="font-size:34px">🗓️</span></div></section>` + banner +
+    list.map(({ r, i }) => `<article class="rem">
+      <div class="rem-top">${catIco(r.cat)}<div class="mid"><div class="t1">${esc(r.title)}</div>
+        <div class="t2"><span class="num">${money(r.amount)}</span> · ${r.kind === 'installment' ? t('kInstallment') : t('kMonthly')} · ${t('everyMonthOn', num(r.day, 0))}</div></div>${statusPill(i)}</div>
+      ${r.kind === 'installment' ? `<div class="rem-prog"><div class="row"><span>${t('progress', num(i.paidCount, 0), num(i.total, 0))}</span>
+        ${i.remaining ? `<span class="num">${t('remaining', money(i.remaining))}</span>` : ''}</div><div class="thin"><i style="width:${(i.paidCount / i.total) * 100}%"></i></div></div>` : ''}
+      ${i.status !== 'done' ? `<div class="t2" style="color:var(--muted);font-size:12.5px;margin-top:10px">${ICON.clock.replace('class="i"', 'class="i" style="width:14px;height:14px;vertical-align:-2px"')} ${t('nextDue', esc(fmtDate(dstr(i.dueDate), { weekday: 'short', day: 'numeric', month: 'long' })))}</div>` : ''}
+      <div class="rem-act">
+        ${i.status !== 'done' ? `<button class="btn primary sm" data-act="pay" data-id="${r.id}">${ICON.check}${t('payNow')}</button>` : ''}
+        <button class="btn ghost sm" data-act="ics" data-id="${r.id}">${ICON.cal}${t('addToCal')}</button>
+        <button class="btn ghost sm" style="flex:0 0 auto" data-act="editRem" data-id="${r.id}" aria-label="edit">${ICON.edit}</button>
+      </div></article>`).join('');
+}
+
+function openReminder(id) {
+  const ex = id ? S.reminders.find((r) => r.id === id) : null;
+  const cur = ym(dstr()), td = new Date().getDate();
+  const r = ex || { title: '', amount: '', kind: 'installment', day: Math.min(td, 28), total: 12, start: cur, cat: 'installments', notifyBefore: S.settings.notifyBefore };
+  let startTouched = !!ex;
+  openSheet(`
+    <div class="sheet-h"><h3>${ex ? t('editReminder') : t('newReminder')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    <div class="seg" id="rKind" style="margin-bottom:16px"><button data-k="installment" class="${r.kind === 'installment' ? 'on' : ''}">💳 ${t('kInstallment')}</button>
+      <button data-k="monthly" class="${r.kind === 'monthly' ? 'on' : ''}">🔁 ${t('kMonthly')}</button></div>
+    <label class="field"><span>${t('title')}</span><input class="input" id="rTitle" placeholder="${t('remPh')}" value="${esc(r.title)}" maxlength="60"></label>
+    <div class="row2"><label class="field"><span>${t('amount')} (${esc(curSymbol())})</span><input class="input num" id="rAmount" inputmode="decimal" value="${esc(r.amount)}" placeholder="0"></label>
+      <label class="field"><span>${t('dueDay')}</span><select class="input" id="rDay">${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${+r.day === i + 1 ? 'selected' : ''}>${num(i + 1, 0)}</option>`).join('')}</select></label></div>
+    <div class="row2"><label class="field" id="rTotalWrap" ${r.kind === 'monthly' ? 'hidden' : ''}><span>${t('months')}</span><input class="input num" id="rTotal" inputmode="numeric" value="${esc(r.total || 12)}"></label>
+      <label class="field"><span>${t('startMonth')}</span><input class="input" type="month" id="rStart" value="${r.start}"></label></div>
+    <div class="row2"><label class="field"><span>${t('category')}</span><select class="input" id="rCat">${CATS.map((c) => `<option value="${c.id}" ${r.cat === c.id ? 'selected' : ''}>${c.e} ${esc(c[S.settings.lang])}</option>`).join('')}</select></label>
+      <label class="field"><span>${t('notifyBefore')}</span><select class="input" id="rNb">${[0, 1, 2, 3, 5, 7].map((d) => `<option value="${d}" ${+r.notifyBefore === d ? 'selected' : ''}>${d ? t('daysN', num(d, 0)) : t('sameDay')}</option>`).join('')}</select></label></div>
+    <div class="btns">${ex ? `<button class="btn danger" id="rDel" style="flex:0 0 auto">${ICON.trash}</button>` : ''}<button class="btn primary" id="rSave">${t('save')}</button></div>`,
+  (sh) => {
+    let kind = r.kind;
+    $('#rKind', sh).addEventListener('click', (ev) => {
+      const b = ev.target.closest('button'); if (!b) return;
+      kind = b.dataset.k; $$('#rKind button', sh).forEach((x) => x.classList.toggle('on', x === b));
+      $('#rTotalWrap', sh).hidden = kind === 'monthly';
+      if (kind === 'monthly' && $('#rCat', sh).value === 'installments') $('#rCat', sh).value = 'bills';
+      if (kind === 'installment' && $('#rCat', sh).value === 'bills') $('#rCat', sh).value = 'installments';
+    });
+    $('#rStart', sh).addEventListener('change', () => { startTouched = true; });
+    $('#rDay', sh).addEventListener('change', (ev) => { if (!startTouched) $('#rStart', sh).value = +ev.target.value < td ? addMonths(cur, 1) : cur; });
+    if (!ex && r.day < td) $('#rStart', sh).value = addMonths(cur, 1);
+    $('#rAmount', sh).addEventListener('input', (ev) => { const v = normDigits(ev.target.value); if (v !== ev.target.value) ev.target.value = v; });
+    $('#rSave', sh).addEventListener('click', () => {
+      const amount = parseFloat(normDigits($('#rAmount', sh).value));
+      const title = $('#rTitle', sh).value.trim();
+      if (!title) { toast(t('needTitle')); return; }
+      if (!(amount > 0)) { toast(t('needAmount')); return; }
+      const rec = { title, amount: Math.round(amount * 100) / 100, kind, day: +$('#rDay', sh).value,
+        total: Math.max(1, parseInt(normDigits($('#rTotal', sh).value)) || 1), start: $('#rStart', sh).value || cur,
+        cat: $('#rCat', sh).value, notifyBefore: +$('#rNb', sh).value };
+      if (ex) Object.assign(ex, rec); else S.reminders.push({ id: uid(), paid: [], ...rec });
+      save(); closeSheet(); toast(t('saved')); render();
+      if (!ex && 'Notification' in window && Notification.permission === 'default') setTimeout(askNotif, 600);
+    });
+    if (ex) $('#rDel', sh).addEventListener('click', async () => {
+      if (!(await confirmBox(t('confirmDeleteRem'), t('delete')))) return;
+      S.reminders = S.reminders.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
+    });
+  });
+}
+function payReminder(id) {
+  const r = S.reminders.find((x) => x.id === id); if (!r) return;
+  const i = remInfo(r); if (i.status === 'done') return;
+  r.paid = [...new Set([...(r.paid || []), i.due])];
+  const label = r.kind === 'installment' ? ` (${num((i.paidCount || 0) + 1, 0)}/${num(i.total, 0)})` : '';
+  S.expenses.push({ id: uid(), title: r.title + label, amount: +r.amount, cat: r.cat, date: dstr(), time: nowTime(), note: t('reminderNote'), rem: r.id });
+  save(); toast(t('markedPaid')); render();
+}
+function icsFor(r) {
+  const i = remInfo(r);
+  const startKey = i.due || r.start;
+  const d = dueDateOf(r, startKey);
+  const ymd = (x) => x.getFullYear() + pad(x.getMonth() + 1) + pad(x.getDate());
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const byDay = +r.day > 28 ? -1 : +r.day;
+  const count = r.kind === 'installment' ? Math.max(1, i.total - i.paidCount) : null;
+  const nb = +(r.notifyBefore ?? 2);
+  const trig = nb > 0 ? `-P${nb - 1}DT15H` : 'PT9H';
+  const escI = (s) => String(s).replace(/[\\;,]/g, (c) => '\\' + c).replace(/\n/g, '\\n');
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Masroufi//Reminders//AR', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    `UID:${r.id}@masroufi`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${ymd(d)}`, `DTEND;VALUE=DATE:${ymd(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1))}`,
+    `RRULE:FREQ=MONTHLY;BYMONTHDAY=${byDay}${count ? ';COUNT=' + count : ''}`,
+    `SUMMARY:${escI(r.title + ' — ' + money(r.amount))}`, `DESCRIPTION:${escI(t('appName'))}`,
+    'BEGIN:VALARM', `TRIGGER:${trig}`, 'ACTION:DISPLAY', `DESCRIPTION:${escI(r.title)}`, 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+  download(`${r.title.replace(/[^\p{L}\p{N}]+/gu, '-')}.ics`, lines.join('\r\n'), 'text/calendar;charset=utf-8');
+  toast(t('calHint'), 3500);
+}
+
+/* ---------- Notifications ---------- */
+async function askNotif() {
+  if (!('Notification' in window)) { toast(t('notifUnsupported')); return; }
+  const p = await Notification.requestPermission();
+  if (p === 'granted') {
+    await registerPeriodic();
+    showNotif(t('appName'), t('notifTest'));
+    syncSchedule(true);
+  }
+  render();
+}
+async function showNotif(title, body, tag) {
+  try {
+    const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+    if (reg) reg.showNotification(title, { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag, dir: isAr() ? 'rtl' : 'ltr' });
+    else new Notification(title, { body, icon: 'icons/icon-192.png' });
+  } catch (e) {}
+}
+async function registerPeriodic() {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if ('periodicSync' in reg) {
+      const st = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (st.state === 'granted') await reg.periodicSync.register('masroufi-reminders', { minInterval: 6 * 3600 * 1000 });
+    }
+  } catch (e) {}
+}
+// Write upcoming due dates to IndexedDB so the service worker can notify (also in background on supported devices)
+async function syncSchedule(check = true) {
+  try {
+    const sched = [];
+    S.reminders.forEach((r) => {
+      const i = remInfo(r); if (i.status === 'done') return;
+      const due = dstr(i.dueDate), nb = +(r.notifyBefore ?? S.settings.notifyBefore);
+      sched.push({ key: r.id + '|' + i.due, lang: S.settings.lang, due, from: addDays(due, -nb),
+        title: t('notifTitle', r.title), bodySoon: t('notifSoon', fmtDate(due, { weekday: 'long', day: 'numeric', month: 'long' }), money(r.amount)), bodyDue: t('notifDue', money(r.amount)) });
+    });
+    await kvSet('schedule', sched);
+    if (check && 'Notification' in window && Notification.permission === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller)
+      navigator.serviceWorker.controller.postMessage({ type: 'check-reminders' });
+  } catch (e) {}
+}
+function updateRemDot() {
+  const hot = S.reminders.some((r) => ['overdue', 'today', 'soon'].includes(remInfo(r).status));
+  $('#remDot').hidden = !hot;
+}
+
+/* ================= SETTINGS ================= */
+let installEvt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+function renderSettings() {
+  const st = S.settings;
+  const np = 'Notification' in window ? Notification.permission : 'unsupported';
+  const installRow = isStandalone() ? `<div class="set-row"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('installed')}</b></div></div>`
+    : `<button class="set-row" data-act="install"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('install')}</b><small>${isIOS() && !installEvt ? t('installIos') : t('installBody')}</small></div>${ICON.chev}</button>`;
+  return `<header class="topbar"><div><p class="sub">${t('appName')}</p><h1>${t('settings')}</h1></div></header>
+  <p class="set-title">${t('general')}</p>
+  <div class="set-group">
+    <div class="set-row col"><div class="head"><span class="ic">${ICON.globe}</span><div class="lab"><b>${t('language')}</b></div></div>
+      <div class="seg" id="segLang"><button data-v="ar" class="${st.lang === 'ar' ? 'on' : ''}">العربية</button><button data-v="en" class="${st.lang === 'en' ? 'on' : ''}">English</button></div></div>
+    <div class="set-row col"><div class="head"><span class="ic">${ICON.sun}</span><div class="lab"><b>${t('appearance')}</b></div></div>
+      <div class="seg" id="segTheme">${['auto', 'light', 'dark'].map((v) => `<button data-v="${v}" class="${st.theme === v ? 'on' : ''}">${t('t' + v[0].toUpperCase() + v.slice(1))}</button>`).join('')}</div></div>
+    <div class="set-row"><span class="ic">${ICON.coin}</span><div class="lab"><b>${t('currency')}</b></div>
+      <select class="input" id="setCur">${CURRENCIES.map((c) => `<option ${c === st.currency ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div class="set-row"><span class="ic">${ICON.target}</span><div class="lab"><b>${t('monthlyBudget')}</b><small>${t('budgetHint')}</small></div>
+      <input class="input num" id="setBudget" inputmode="decimal" value="${st.budget || 0}" style="max-width:120px"></div>
+  </div>
+  <p class="set-title">${t('notifications')}</p>
+  <div class="set-group">
+    <div class="set-row"><span class="ic">${ICON.bell}</span><div class="lab"><b>${t('notifications')}</b>
+      <small>${np === 'granted' ? t('notifOn') : np === 'denied' ? t('notifBlocked') : np === 'unsupported' ? t('notifUnsupported') : t('notifOff')}</small></div>
+      ${np === 'default' ? `<button class="btn dark sm" data-act="notif">${t('enable')}</button>` : np === 'granted' ? `<button class="btn ghost sm" data-act="testNotif">${t('test')}</button>` : ''}</div>
+    <div class="set-row"><span class="ic">${ICON.clock}</span><div class="lab"><b>${t('notifyBefore')}</b></div>
+      <select class="input" id="setNb">${[0, 1, 2, 3, 5, 7].map((d) => `<option value="${d}" ${+st.notifyBefore === d ? 'selected' : ''}>${d ? t('daysN', num(d, 0)) : t('sameDay')}</option>`).join('')}</select></div>
+    ${installRow}
+  </div>
+  <p class="set-title">${t('data')}</p>
+  <div class="set-group">
+    <button class="set-row" data-act="backup"><span class="ic">${ICON.down}</span><div class="lab"><b>${t('backup')}</b><small>${t('backupBody')}</small></div>${ICON.chev}</button>
+    <button class="set-row" data-act="restore"><span class="ic">${ICON.up}</span><div class="lab"><b>${t('restore')}</b></div>${ICON.chev}</button>
+    <button class="set-row" data-act="wipe"><span class="ic" style="color:var(--danger)">${ICON.trash}</span><div class="lab"><b class="danger-text">${t('wipe')}</b></div></button>
+  </div>
+  <p class="foot">🔒 ${t('storedLocally')}<br>v1.0.0</p>`;
+}
+
+/* ================= Sheet / toast / confirm ================= */
+let sheetCloseCb = null;
+function openSheet(html, onMount, onClose) {
+  const sh = $('#sheet');
+  sh.innerHTML = '<div class="grab"></div>' + html;
+  sheetCloseCb = onClose || null;
+  $('#backdrop').classList.add('show');
+  requestAnimationFrame(() => sh.classList.add('show'));
+  $$('[data-close]', sh).forEach((b) => b.addEventListener('click', () => closeSheet()));
+  onMount && onMount(sh);
+}
+function closeSheet() {
+  $('#sheet').classList.remove('show'); $('#backdrop').classList.remove('show');
+  const cb = sheetCloseCb; sheetCloseCb = null; cb && cb();
+}
+function confirmBox(msg, okLabel) {
+  return new Promise((res) => {
+    let done = false;
+    const fin = (v) => { if (done) return; done = true; res(v); };
+    openSheet(`<p class="confirm-msg">${esc(msg)}</p><div class="btns"><button class="btn ghost" id="cNo">${t('cancel')}</button><button class="btn danger" id="cYes">${esc(okLabel)}</button></div>`,
+      (sh) => { $('#cNo', sh).onclick = () => closeSheet(); $('#cYes', sh).onclick = () => { fin(true); closeSheet(); }; },
+      () => fin(false));
+  });
+}
+let toastT;
+function toast(msg, ms = 2200) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+/* ================= Event binding ================= */
+function bindView() {
+  const v = $('#view');
+  // Statement inputs
+  const sQ = $('#sQ', v);
+  if (sQ) {
+    let tm; sQ.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { V.stmt.q = sQ.value; const pos = sQ.selectionStart; render(); const n = $('#sQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }, 250); });
+    $('#sCat', v).addEventListener('change', (e) => { V.stmt.cat = e.target.value; render(); });
+    $('#presets', v).addEventListener('click', (e) => { const b = e.target.closest('[data-preset]'); if (!b) return; V.stmt.preset = b.dataset.preset; render(); });
+    const f = $('#sFrom', v), to = $('#sTo', v);
+    if (f) { f.addEventListener('change', () => { V.stmt.from = f.value || V.stmt.from; render(); }); to.addEventListener('change', () => { V.stmt.to = to.value || V.stmt.to; render(); }); }
+  }
+  // Settings inputs
+  const sl = $('#segLang', v);
+  if (sl) {
+    sl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.settings.lang = b.dataset.v; save(); applyLang(); render(); });
+    $('#segTheme', v).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.settings.theme = b.dataset.v; save(); applyTheme(); render(); });
+    $('#setCur', v).addEventListener('change', (e) => { S.settings.currency = e.target.value; save(); toast(t('saved')); });
+    $('#setNb', v).addEventListener('change', (e) => { S.settings.notifyBefore = +e.target.value; save(); toast(t('saved')); });
+    const bud = $('#setBudget', v);
+    bud.addEventListener('input', () => { const n = normDigits(bud.value); if (n !== bud.value) bud.value = n; });
+    bud.addEventListener('change', () => { S.settings.budget = Math.max(0, parseFloat(normDigits(bud.value)) || 0); save(); toast(t('budgetSet')); });
+  }
+}
+
+document.addEventListener('click', async (e) => {
+  const tab = e.target.closest('.tab'); if (tab) { go(tab.dataset.tab); return; }
+  const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
+  const id = el.dataset.id;
+  switch (el.dataset.act) {
+    case 'add': openExpense(); break;
+    case 'edit': openExpense(id); break;
+    case 'prevMonth': { const d = new Date(V.y, V.m - 1, 1); V.y = d.getFullYear(); V.m = d.getMonth(); render(); break; }
+    case 'nextMonth': { const d = new Date(V.y, V.m + 1, 1); V.y = d.getFullYear(); V.m = d.getMonth(); render(); break; }
+    case 'pickMonth': V.m = +el.dataset.m; render(); break;
+    case 'pickYear': { V.y = +el.dataset.y; const n = new Date(); if (V.y === n.getFullYear()) V.m = n.getMonth(); else V.m = 11; render(); break; }
+    case 'seeMonth': V.stmt.preset = 'custom'; V.stmt.from = dstr(new Date(V.y, V.m, 1)); V.stmt.to = dstr(new Date(V.y, V.m + 1, 0)); go('statement'); break;
+    case 'goRem': go('reminders'); break;
+    case 'pdf': exportPDF(); break;
+    case 'print': printReport(); break;
+    case 'csv': exportCSV(); break;
+    case 'newRem': openReminder(); break;
+    case 'editRem': openReminder(id); break;
+    case 'pay': payReminder(id); break;
+    case 'ics': icsFor(S.reminders.find((r) => r.id === id)); break;
+    case 'notif': askNotif(); break;
+    case 'testNotif': showNotif(t('appName'), t('notifTest')); break;
+    case 'install':
+      if (installEvt) { installEvt.prompt(); const c = await installEvt.userChoice; installEvt = null; if (c.outcome === 'accepted') toast(t('installed')); render(); }
+      else toast(isIOS() ? t('installIos') : t('installBody'), 4000);
+      break;
+    case 'backup': download(`masroufi-backup-${dstr()}.json`, JSON.stringify({ app: 'masroufi', v: 1, exported: new Date().toISOString(), ...S }, null, 2), 'application/json'); break;
+    case 'restore': $('#importFile').click(); break;
+    case 'wipe':
+      if (await confirmBox(t('confirmWipe'), t('wipe'))) { const st = S.settings; S = JSON.parse(JSON.stringify(DEF)); S.settings = st; save(); toast(t('deleted')); render(); }
+      break;
+  }
+});
+$('#fab').addEventListener('click', () => openExpense());
+$('#backdrop').addEventListener('click', () => closeSheet());
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+$('#importFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!Array.isArray(d.expenses)) throw 0;
+    S = { expenses: d.expenses, reminders: d.reminders || [], settings: { ...DEF.settings, ...(d.settings || {}) } };
+    save(); applyLang(); applyTheme(); toast(t('restored')); render();
+  } catch (err) { toast(t('badFile')); }
+});
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (V.tab === 'settings') render(); });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== V.tab && ['home', 'statement', 'reminders', 'settings'].includes(h)) go(h); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { syncSchedule(true); if (V.tab !== 'settings') render(); } });
+
+/* ================= Boot ================= */
+applyTheme(); applyLang();
+const h = location.hash.slice(1);
+if (['home', 'statement', 'reminders', 'settings'].includes(h)) V.tab = h;
+render();
+if (new URLSearchParams(location.search).get('action') === 'add') { history.replaceState(null, '', location.pathname + '#home'); setTimeout(() => openExpense(), 300); }
+
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
+    if ('Notification' in window && Notification.permission === 'granted') registerPeriodic();
+    syncSchedule(true);
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => syncSchedule(true));
+}
+window.__masroufi = { S: () => S, save, render };
+})();
+</script>
+</body>
+</html>
