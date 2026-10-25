@@ -280,6 +280,17 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .credit b{color:var(--text);font-size:14px}
 .sync-steps{margin:12px 0 0;background:var(--surface2);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.8;color:var(--muted)}
 .sync-steps b{color:var(--text)}
+.inst-banner{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--lime);border-radius:18px;padding:10px 10px 10px 12px;margin-bottom:14px;box-shadow:var(--shadow)}
+.inst-banner img{width:42px;height:42px;border-radius:12px;flex:none}
+.inst-banner .mid{flex:1;min-width:0}.inst-banner b{display:block;font-size:14px}.inst-banner small{color:var(--muted);font-size:12px}
+.inst-banner .icon-btn.x{width:32px;height:32px;box-shadow:none;background:transparent;color:var(--muted)}
+.inst-hero{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:18px;padding:12px;margin-bottom:16px}
+.inst-hero img{width:56px;height:56px;border-radius:16px}.inst-hero b{display:block;font-size:16px}.inst-hero small{color:var(--muted);font-size:13px}
+.inst-steps{margin:0 0 18px;padding:0;list-style:none;counter-reset:st}
+.inst-steps li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:14.5px;line-height:1.6;border-bottom:1px solid var(--line)}
+.inst-steps li:last-child{border-bottom:0}
+.inst-steps li::before{content:counter(st);flex:none;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--lime-ink);display:grid;place-items:center;font-weight:700;font-size:13px}
+.inst-steps b{color:var(--text)}
 .code-box{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;font-weight:700;letter-spacing:.06em;text-align:center;
   background:var(--surface);border:1.5px dashed var(--line);border-radius:16px;padding:14px 10px;margin-bottom:14px;word-break:break-all;user-select:all}
 .view{animation:fade .25s ease}
@@ -389,6 +400,12 @@ ar: {
   backupBody: 'ملف JSON فيه كل بياناتك', restore: 'استرجاع نسخة احتياطية', wipe: 'مسح كل البيانات', confirmWipe: 'هيتم مسح كل المصروفات والتذكيرات نهائيًا. متأكد؟',
   restored: 'تم الاسترجاع ✓', badFile: 'الملف غير صالح', storedLocally: 'بياناتك محفوظة على جهازك فقط — مفيش سيرفر.', general: 'عام',
   yesterday: 'أمس', tagline: 'تتبع مصروفاتك بسهولة',
+  installBannerT: 'ثبّت مصروفي على موبايلك', installBannerB: 'يفتح زي أي تطبيق ويشتغل من غير نت', installNow: 'تثبيت', copyLinkBtn: 'نسخ رابط التطبيق',
+  inst_chrome1: 'اضغط على قايمة كروم <b>⋮</b> فوق على اليمين.', inst_chrome2: 'اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.', inst_chrome3: 'اضغط <b>«تثبيت»</b> — الأيقونة هتظهر مع باقي تطبيقاتك.',
+  inst_inapp1: 'انت فاتح الرابط من جوه تطبيق تاني (واتساب/فيسبوك) ودا مش بيسمح بالتثبيت.', inst_inapp2: 'اضغط <b>⋮</b> واختار <b>«فتح في Chrome»</b> — أو انسخ الرابط وافتحه في كروم.',
+  inst_sam1: 'اضغط على القايمة <b>☰</b> تحت.', inst_sam2: 'اختار <b>«إضافة صفحة إلى»</b> ثم <b>«الشاشة الرئيسية»</b>.', inst_sam3: 'اضغط <b>«إضافة»</b>.',
+  inst_ios1: 'افتح الرابط في <b>Safari</b>.', inst_ios2: 'اضغط زر المشاركة <b>⬆︎</b> تحت.', inst_ios3: 'اختار <b>«إضافة إلى الشاشة الرئيسية»</b> ثم <b>«إضافة»</b>.',
+  inst_desk1: 'في كروم أو إيدج: اضغط أيقونة التثبيت <b>⊕</b> في شريط العنوان.', inst_desk2: 'أو من القايمة <b>⋮</b> ← <b>«تثبيت مصروفي»</b>.',
   syncTitle: 'المزامنة بين الأجهزة', syncIntro: 'شوف مصروفاتك على أي موبايل أو كمبيوتر — من غير تسجيل دخول.', syncSteps: '<b>أول مرة؟</b> اضغط «تفعيل المزامنة» على جهازك الأساسي هيظهر لك كود.<br><b>جهاز تاني؟</b> اضغط «ربط بجهاز تاني» واكتب الكود ده.', syncNoStorageBody: 'المزامنة محتاجة قاعدة بيانات على Vercel: افتح المشروع ← Storage ← Upstash for Redis ← Connect، وبعدين Redeploy.', ok: 'تمام', syncEnable: 'تفعيل المزامنة', syncLink: 'ربط بجهاز تاني',
   syncLinkBody: 'الكود بيتعمل على جهازك التاني: افتح التطبيق عليه ← الإعدادات ← «تفعيل المزامنة» (أو «عرض كود المزامنة» لو كانت مفعّلة). اكتب الكود اللي هيظهر هنا، وبيانات الجهازين هتتدمج مع بعض.', syncCode: 'كود المزامنة', syncLinkBtn: 'ربط الجهاز',
   syncOn: 'المزامنة مفعّلة', syncing: 'جاري المزامنة…', syncedAgo: 'آخر مزامنة {0}', syncAddDevice: 'عرض كود المزامنة', syncAddDeviceBody: 'لإضافة جهاز تاني بالكود أو الـ QR',
@@ -429,6 +446,12 @@ en: {
   backupBody: 'A JSON file with all your data', restore: 'Restore backup', wipe: 'Erase all data', confirmWipe: 'This permanently erases all expenses and reminders. Continue?',
   restored: 'Restored ✓', badFile: 'Invalid file', storedLocally: 'Your data stays on this device — no server.', general: 'General',
   yesterday: 'Yesterday', tagline: 'Track your expenses with ease',
+  installBannerT: 'Install Masroufi on your phone', installBannerB: 'Opens like any app and works offline', installNow: 'Install', copyLinkBtn: 'Copy app link',
+  inst_chrome1: 'Tap Chrome\'s menu <b>⋮</b> at the top right.', inst_chrome2: 'Choose <b>"Install app"</b> or <b>"Add to Home screen"</b>.', inst_chrome3: 'Tap <b>"Install"</b> — the icon appears with your other apps.',
+  inst_inapp1: 'You opened this link inside another app (WhatsApp/Facebook), which blocks installing.', inst_inapp2: 'Tap <b>⋮</b> and choose <b>"Open in Chrome"</b> — or copy the link and open it in Chrome.',
+  inst_sam1: 'Tap the menu <b>☰</b> at the bottom.', inst_sam2: 'Choose <b>"Add page to"</b> then <b>"Home screen"</b>.', inst_sam3: 'Tap <b>"Add"</b>.',
+  inst_ios1: 'Open the link in <b>Safari</b>.', inst_ios2: 'Tap the Share button <b>⬆︎</b>.', inst_ios3: 'Choose <b>"Add to Home Screen"</b>, then <b>"Add"</b>.',
+  inst_desk1: 'In Chrome or Edge: click the install icon <b>⊕</b> in the address bar.', inst_desk2: 'Or open the menu <b>⋮</b> → <b>"Install Masroufi"</b>.',
   syncTitle: 'Sync across devices', syncIntro: 'See your expenses on any phone or computer — no sign-in needed.', syncSteps: '<b>First time?</b> Tap "Turn on sync" on your main device to get a code.<br><b>Another device?</b> Tap "Link a device" and enter that code.', syncNoStorageBody: 'Sync needs a database on Vercel: open the project → Storage → Upstash for Redis → Connect, then Redeploy.', ok: 'OK', syncEnable: 'Turn on sync', syncLink: 'Link a device',
   syncLinkBody: 'The code is created on your other device: open the app there → Settings → "Turn on sync" (or "Show sync code" if it is already on). Enter that code here and both devices\' data will be merged.', syncCode: 'Sync code', syncLinkBtn: 'Link device',
   syncOn: 'Sync is on', syncing: 'Syncing…', syncedAgo: 'Last synced {0}', syncAddDevice: 'Show sync code', syncAddDeviceBody: 'To add another device by code or QR',
@@ -570,7 +593,7 @@ function renderHome() {
     </header>`;
 
   if (!all.length) {
-    return header + `<div class="card empty"><div class="art">💸</div><h3>${t('emptyTitle')}</h3><p>${t('emptyBody')}</p>
+    return header + installBanner() + `<div class="card empty"><div class="art">💸</div><h3>${t('emptyTitle')}</h3><p>${t('emptyBody')}</p>
       <button class="btn primary" data-act="add">${ICON.plus}${t('addFirst')}</button></div>` + upcomingBlock();
   }
 
@@ -640,7 +663,7 @@ function renderHome() {
   const recent = `<section class="card"><div class="card-h"><h3>${t('recent')}</h3>${monthEx.length ? `<button class="link" data-act="seeMonth">${t('viewAll')}${ICON.chev}</button>` : ''}</div>
     ${rec.length ? `<div class="list">${rec.map(itemRow).join('')}</div>` : `<p style="color:var(--muted);margin:0;font-size:14px">${t('noMonth')}</p>`}</section>`;
 
-  return header + hero + stats + upcomingBlock() + cats + yearChart + multi + recent;
+  return header + installBanner() + hero + stats + upcomingBlock() + cats + yearChart + multi + recent;
 }
 
 function itemRow(e) {
@@ -1188,6 +1211,40 @@ async function disableSync() {
   SY = {}; saveSY(); render(); toast(t('syncOffDone'));
 }
 
+
+/* ---------- Install ---------- */
+const UA = navigator.userAgent;
+const isAndroid = () => /android/i.test(UA);
+const isInApp = () => /FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|Snapchat|TikTok|Messenger|; wv\)/i.test(UA);
+const isSamsung = () => /SamsungBrowser/i.test(UA);
+async function doInstall() {
+  if (installEvt) {
+    installEvt.prompt();
+    const c = await installEvt.userChoice; installEvt = null;
+    if (c.outcome === 'accepted') toast(t('installed'));
+    render(); return;
+  }
+  let steps;
+  if (isInApp()) steps = [t('inst_inapp1'), t('inst_inapp2'), t('inst_chrome2')];
+  else if (isIOS()) steps = [t('inst_ios1'), t('inst_ios2'), t('inst_ios3')];
+  else if (isSamsung()) steps = [t('inst_sam1'), t('inst_sam2'), t('inst_sam3')];
+  else if (isAndroid()) steps = [t('inst_chrome1'), t('inst_chrome2'), t('inst_chrome3')];
+  else steps = [t('inst_desk1'), t('inst_desk2')];
+  openSheet(`<div class="sheet-h"><h3>${t('install')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    <div class="inst-hero"><img src="icons/icon-192.png" alt=""><div><b>${t('appName')}</b><small>${t('tagline')}</small></div></div>
+    <ol class="inst-steps">${steps.map((x) => `<li><span>${x}</span></li>`).join('')}</ol>
+    ${isInApp() ? `<button class="btn dark block" id="cpUrl" style="margin-bottom:10px">${t('copyLinkBtn')}</button>` : ''}
+    <button class="btn primary block" data-close>${t('ok')}</button>`, (sh) => {
+    const b = $('#cpUrl', sh);
+    if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(new URL('./', location.href).href); toast(t('linkCopied')); } catch (e) { toast(location.origin, 5000); } };
+  });
+}
+function installBanner() {
+  if (isStandalone() || !installEvt) return '';
+  try { const h = +localStorage.getItem('masroufi.hideInstall'); if (h && Date.now() - h < 7 * 864e5) return ''; } catch (e) {}
+  return `<div class="inst-banner"><img src="icons/icon-192.png" alt=""><div class="mid"><b>${t('installBannerT')}</b><small>${t('installBannerB')}</small></div>
+    <button class="btn primary sm" data-act="install">${t('installNow')}</button><button class="icon-btn x" data-act="hideInstall" aria-label="close">${ICON.close}</button></div>`;
+}
 /* ================= SETTINGS ================= */
 let installEvt = null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1196,7 +1253,7 @@ function renderSettings() {
   const st = S.settings;
   const np = 'Notification' in window ? Notification.permission : 'unsupported';
   const installRow = isStandalone() ? `<div class="set-row"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('installed')}</b></div></div>`
-    : `<button class="set-row" data-act="install"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('install')}</b><small>${isIOS() && !installEvt ? t('installIos') : t('installBody')}</small></div>${ICON.chev}</button>`;
+    : `<button class="set-row" data-act="install"><span class="ic">${ICON.phone}</span><div class="lab"><b>${t('install')}</b><small>${t('installBody')}</small></div>${ICON.chev}</button>`;
   return `<header class="topbar"><div><p class="sub">${t('appName')}</p><h1>${t('settings')}</h1></div></header>
   <p class="set-title">${t('general')}</p>
   <div class="set-group">
@@ -1235,7 +1292,7 @@ function renderSettings() {
     <button class="set-row" data-act="restore"><span class="ic">${ICON.up}</span><div class="lab"><b>${t('restore')}</b></div>${ICON.chev}</button>
     <button class="set-row" data-act="wipe"><span class="ic" style="color:var(--danger)">${ICON.trash}</span><div class="lab"><b class="danger-text">${t('wipe')}</b></div></button>
   </div>
-  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.3.1</span><span>🔒 ${t('storedLocally')}</span></div>`;
+  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.4.0</span><span>🔒 ${t('storedLocally')}</span></div>`;
 }
 
 /* ================= Sheet / toast / confirm ================= */
@@ -1320,10 +1377,8 @@ document.addEventListener('click', async (e) => {
     case 'syncCode': showSyncCode(); break;
     case 'syncOff': disableSync(); break;
     case 'testNotif': showNotif(t('appName'), t('notifTest')); break;
-    case 'install':
-      if (installEvt) { installEvt.prompt(); const c = await installEvt.userChoice; installEvt = null; if (c.outcome === 'accepted') toast(t('installed')); render(); }
-      else toast(isIOS() ? t('installIos') : t('installBody'), 4000);
-      break;
+    case 'install': doInstall(); break;
+    case 'hideInstall': try { localStorage.setItem('masroufi.hideInstall', String(Date.now())); } catch (e) {} render(); break;
     case 'backup': download(`masroufi-backup-${dstr()}.json`, JSON.stringify({ app: 'masroufi', v: 1, exported: new Date().toISOString(), ...S }, null, 2), 'application/json'); break;
     case 'restore': $('#importFile').click(); break;
     case 'wipe':
@@ -1344,7 +1399,8 @@ $('#importFile').addEventListener('change', async (e) => {
     save(); applyLang(); applyTheme(); toast(t('restored')); render();
   } catch (err) { toast(t('badFile')); }
 });
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (V.tab === 'settings') render(); });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (V.tab === 'settings' || V.tab === 'home') render(); });
+window.addEventListener('appinstalled', () => { installEvt = null; toast(t('installed')); render(); });
 window.addEventListener('hashchange', () => { if (location.hash.startsWith('#sync=')) { handleSyncHash(); return; } const h = location.hash.slice(1); if (h && h !== V.tab && ['home', 'statement', 'reminders', 'settings'].includes(h)) go(h); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 window.addEventListener('online', () => queueCloudSync());
