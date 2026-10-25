@@ -1,8 +1,9 @@
 /* Masroufi service worker — offline cache + reminder notifications */
-const VERSION = 'masroufi-v1.0.0';
+const VERSION = 'masroufi-v1.1.0';
 const SHELL = [
   './', './index.html', './manifest.json',
-  './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
+  './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png',
+  './icons/favicon.png', './icons/logo-mark.png', './icons/logo-full.png'
 ];
 
 self.addEventListener('install', (e) => {
