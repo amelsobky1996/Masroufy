@@ -1,5 +1,5 @@
 /* Masroufi service worker — offline cache + reminder notifications */
-const VERSION = 'masroufi-v1.2.0';
+const VERSION = 'masroufi-v1.3.0';
 const SHELL = [
   './', './index.html', './manifest.json',
   './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png',
@@ -22,6 +22,9 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  // Never cache the sync API
+  if (url.origin === location.origin && url.pathname.includes('/api/')) return;
 
   // App navigation: network first, fall back to cached shell (works offline)
   if (req.mode === 'navigate') {

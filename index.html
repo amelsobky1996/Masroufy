@@ -278,6 +278,8 @@ select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 .credit{display:flex;flex-direction:column;align-items:center;gap:8px;margin:26px 0 8px;color:var(--muted);font-size:12px;text-align:center}
 .credit img{width:64px;height:64px;border-radius:18px;background:#fff;padding:6px;object-fit:contain;box-shadow:var(--shadow)}
 .credit b{color:var(--text);font-size:14px}
+.code-box{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;font-weight:700;letter-spacing:.06em;text-align:center;
+  background:var(--surface);border:1.5px dashed var(--line);border-radius:16px;padding:14px 10px;margin-bottom:14px;word-break:break-all;user-select:all}
 .view{animation:fade .25s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.sp-mark img,.sp-word,.sp-tag,.sp-foot{opacity:1!important}.sp-bar i{width:100%!important}}
@@ -336,15 +338,18 @@ const DEF = { expenses: [], reminders: [], settings: { lang: 'ar', currency: 'EG
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(LS_KEY));
-    if (d && typeof d === 'object') return { expenses: d.expenses || [], reminders: d.reminders || [], settings: { ...DEF.settings, ...(d.settings || {}) } };
+    if (d && typeof d === 'object') return { expenses: d.expenses || [], reminders: d.reminders || [], tomb: d.tomb || {}, settings: { ...DEF.settings, ...(d.settings || {}) } };
   } catch (e) {}
-  return JSON.parse(JSON.stringify(DEF));
+  return { ...JSON.parse(JSON.stringify(DEF)), tomb: {} };
 }
 let S = load();
-function save() {
+function saveLocal() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { toast(t('saveErr')); }
   syncSchedule();
 }
+function save() { saveLocal(); queueCloudSync(); }
+const stamp = (o) => { o.u = Date.now(); return o; };
+const markDeleted = (id) => { S.tomb = S.tomb || {}; S.tomb[id] = Date.now(); };
 
 function idb() { return new Promise((res, rej) => { const q = indexedDB.open('masroufi', 1); q.onupgradeneeded = () => q.result.createObjectStore('kv'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
 async function kvSet(k, v) { const db = await idb(); return new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
@@ -381,7 +386,15 @@ ar: {
   installIos: 'من Safari: اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية"', installed: 'التطبيق مثبت ✓', data: 'البيانات', backup: 'تنزيل نسخة احتياطية',
   backupBody: 'ملف JSON فيه كل بياناتك', restore: 'استرجاع نسخة احتياطية', wipe: 'مسح كل البيانات', confirmWipe: 'هيتم مسح كل المصروفات والتذكيرات نهائيًا. متأكد؟',
   restored: 'تم الاسترجاع ✓', badFile: 'الملف غير صالح', storedLocally: 'بياناتك محفوظة على جهازك فقط — مفيش سيرفر.', general: 'عام',
-  yesterday: 'أمس', tagline: 'تتبع مصروفاتك بسهولة', test: 'تجربة', budgetSet: 'تم تحديث الميزانية', fromPdf: 'كشف'
+  yesterday: 'أمس', tagline: 'تتبع مصروفاتك بسهولة',
+  syncTitle: 'المزامنة بين الأجهزة', syncIntro: 'شوف مصروفاتك على أي موبايل أو كمبيوتر — من غير تسجيل دخول.', syncEnable: 'تفعيل المزامنة', syncLink: 'ربط بجهاز تاني',
+  syncLinkBody: 'اكتب كود المزامنة اللي ظاهر على جهازك التاني (من الإعدادات ← إضافة جهاز). بيانات الجهازين هتتدمج مع بعض.', syncCode: 'كود المزامنة', syncLinkBtn: 'ربط الجهاز',
+  syncOn: 'المزامنة مفعّلة', syncing: 'جاري المزامنة…', syncedAgo: 'آخر مزامنة {0}', syncAddDevice: 'إضافة جهاز تاني', syncAddDeviceBody: 'كود أو QR تفتحه على الجهاز التاني',
+  syncOff: 'إيقاف المزامنة', syncOffBody: 'البيانات هتفضل على الجهاز ده', syncOffConfirm: 'إيقاف المزامنة على الجهاز ده؟ بياناتك هتفضل موجودة عليه، والأجهزة التانية مش هتتأثر.', syncOffDone: 'تم إيقاف المزامنة',
+  syncCodeTitle: 'كود المزامنة', syncCodeBody: 'امسح الـ QR من الجهاز التاني، أو افتح نفس التطبيق عليه وادخل على الإعدادات ← ربط بجهاز تاني واكتب الكود.',
+  copyCode: 'نسخ الكود', shareLink: 'مشاركة الرابط', copied: 'اتنسخ ✓', linkCopied: 'اتنسخ الرابط ✓', syncSecret: 'الكود ده زي الباسورد — أي حد معاه يقدر يشوف مصروفاتك. ماتبعتوش لحد.',
+  syncShareText: 'رابط ربط مصروفي بجهازي', syncLinked: 'تم الربط والمزامنة ✓', syncBadCode: 'الكود غير صحيح', syncNoStorage: 'خدمة التخزين مش متفعلة على السيرفر', syncOffline: 'مفيش إنترنت — هتتزامن لما يرجع',
+  syncFailed: 'تعذرت المزامنة', syncLinkConfirm: 'ربط الجهاز ده بمصروفاتك المتزامنة؟ البيانات اللي عليه هتتدمج معاها.', syncLinkYes: 'ربط', test: 'تجربة', budgetSet: 'تم تحديث الميزانية', fromPdf: 'كشف'
 },
 en: {
   appName: 'Masroufi', home: 'Home', statement: 'Statement', reminders: 'Reminders', settings: 'Settings',
@@ -413,7 +426,15 @@ en: {
   installIos: 'In Safari: tap Share, then "Add to Home Screen"', installed: 'App installed ✓', data: 'Data', backup: 'Download backup',
   backupBody: 'A JSON file with all your data', restore: 'Restore backup', wipe: 'Erase all data', confirmWipe: 'This permanently erases all expenses and reminders. Continue?',
   restored: 'Restored ✓', badFile: 'Invalid file', storedLocally: 'Your data stays on this device — no server.', general: 'General',
-  yesterday: 'Yesterday', tagline: 'Track your expenses with ease', test: 'Test', budgetSet: 'Budget updated', fromPdf: 'statement'
+  yesterday: 'Yesterday', tagline: 'Track your expenses with ease',
+  syncTitle: 'Sync across devices', syncIntro: 'See your expenses on any phone or computer — no sign-in needed.', syncEnable: 'Turn on sync', syncLink: 'Link a device',
+  syncLinkBody: 'Enter the sync code shown on your other device (Settings → Add another device). Both devices\' data will be merged.', syncCode: 'Sync code', syncLinkBtn: 'Link device',
+  syncOn: 'Sync is on', syncing: 'Syncing…', syncedAgo: 'Last synced {0}', syncAddDevice: 'Add another device', syncAddDeviceBody: 'A code or QR to open on the other device',
+  syncOff: 'Turn off sync', syncOffBody: 'Your data stays on this device', syncOffConfirm: 'Turn off sync on this device? Your data stays here and other devices are not affected.', syncOffDone: 'Sync turned off',
+  syncCodeTitle: 'Sync code', syncCodeBody: 'Scan the QR from your other device, or open the app there and go to Settings → Link a device and enter the code.',
+  copyCode: 'Copy code', shareLink: 'Share link', copied: 'Copied ✓', linkCopied: 'Link copied ✓', syncSecret: 'Treat this code like a password — anyone with it can see your expenses.',
+  syncShareText: 'Link Masroufi to my device', syncLinked: 'Linked and synced ✓', syncBadCode: 'Invalid code', syncNoStorage: 'Cloud storage is not set up on the server', syncOffline: "You're offline — will sync when back online",
+  syncFailed: "Couldn't sync", syncLinkConfirm: 'Link this device to your synced expenses? Its data will be merged in.', syncLinkYes: 'Link', test: 'Test', budgetSet: 'Budget updated', fromPdf: 'statement'
 }};
 const t = (k, ...a) => { let s = (I[S.settings.lang] || I.ar)[k] ?? I.en[k] ?? k; a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; };
 const isAr = () => S.settings.lang === 'ar';
@@ -483,7 +504,11 @@ const ICON = {
   down: '<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>',
   up: '<svg class="i" viewBox="0 0 24 24"><path d="M12 21V9m0 0-4 4m4-4 4 4M5 3h14"/></svg>',
   trash: '<svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>',
-  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+  clock: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  cloud: '<svg class="i" viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 6 19z"/></svg>',
+  cloudOff: '<svg class="i" viewBox="0 0 24 24"><path d="m2 2 20 20M5.8 8.2A6 6 0 0 0 4.5 12.5 3.5 3.5 0 0 0 6 19h11.5M21 16.5a4.5 4.5 0 0 0-4.9-6.3A6 6 0 0 0 9.4 6.6"/></svg>',
+  refresh: '<svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></svg>',
+  qr: '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>'
 };
 
 /* ================= App state ================= */
@@ -665,7 +690,7 @@ function openExpense(id) {
       const title = $('#fTitle', sh).value.trim();
       if (!(amount > 0)) { toast(t('needAmount')); amt.focus(); return; }
       if (!title) { toast(t('needTitle')); $('#fTitle', sh).focus(); return; }
-      const rec = { id: ex ? ex.id : uid(), title, amount: Math.round(amount * 100) / 100, cat: selCat,
+      const rec = { id: ex ? ex.id : uid(), u: Date.now(), title, amount: Math.round(amount * 100) / 100, cat: selCat,
         date: $('#fDate', sh).value || dstr(), time: $('#fTime', sh).value || nowTime(), note: $('#fNote', sh).value.trim() };
       if (ex) Object.assign(ex, rec); else S.expenses.push(rec);
       save(); closeSheet(); toast(t('saved'));
@@ -674,7 +699,7 @@ function openExpense(id) {
     });
     if (ex) $('#fDel', sh).addEventListener('click', async () => {
       if (!(await confirmBox(t('confirmDelete'), t('delete')))) return;
-      S.expenses = S.expenses.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
+      markDeleted(ex.id); S.expenses = S.expenses.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
     });
   });
 }
@@ -937,7 +962,7 @@ function openReminder(id) {
       const title = $('#rTitle', sh).value.trim();
       if (!title) { toast(t('needTitle')); return; }
       if (!(amount > 0)) { toast(t('needAmount')); return; }
-      const rec = { title, amount: Math.round(amount * 100) / 100, kind, day: +$('#rDay', sh).value,
+      const rec = { u: Date.now(), title, amount: Math.round(amount * 100) / 100, kind, day: +$('#rDay', sh).value,
         total: Math.max(1, parseInt(normDigits($('#rTotal', sh).value)) || 1), start: $('#rStart', sh).value || cur,
         cat: $('#rCat', sh).value, notifyBefore: +$('#rNb', sh).value };
       if (ex) Object.assign(ex, rec); else S.reminders.push({ id: uid(), paid: [], ...rec });
@@ -946,16 +971,16 @@ function openReminder(id) {
     });
     if (ex) $('#rDel', sh).addEventListener('click', async () => {
       if (!(await confirmBox(t('confirmDeleteRem'), t('delete')))) return;
-      S.reminders = S.reminders.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
+      markDeleted(ex.id); S.reminders = S.reminders.filter((x) => x.id !== ex.id); save(); toast(t('deleted')); render();
     });
   });
 }
 function payReminder(id) {
   const r = S.reminders.find((x) => x.id === id); if (!r) return;
   const i = remInfo(r); if (i.status === 'done') return;
-  r.paid = [...new Set([...(r.paid || []), i.due])];
+  r.paid = [...new Set([...(r.paid || []), i.due])]; stamp(r);
   const label = r.kind === 'installment' ? ` (${num((i.paidCount || 0) + 1, 0)}/${num(i.total, 0)})` : '';
-  S.expenses.push({ id: uid(), title: r.title + label, amount: +r.amount, cat: r.cat, date: dstr(), time: nowTime(), note: t('reminderNote'), rem: r.id });
+  S.expenses.push({ id: uid(), u: Date.now(), title: r.title + label, amount: +r.amount, cat: r.cat, date: dstr(), time: nowTime(), note: t('reminderNote'), rem: r.id });
   save(); toast(t('markedPaid')); render();
 }
 function icsFor(r) {
@@ -1025,6 +1050,138 @@ function updateRemDot() {
   $('#remDot').hidden = !hot;
 }
 
+/* ================= CLOUD SYNC (no login — secret sync code) ================= */
+const SYNC_LS = 'masroufi.sync';
+const CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+let SY = (() => { try { return JSON.parse(localStorage.getItem(SYNC_LS)) || {}; } catch (e) { return {}; } })();
+const saveSY = () => { try { localStorage.setItem(SYNC_LS, JSON.stringify(SY)); } catch (e) {} };
+const newCode = () => { const b = new Uint8Array(20); crypto.getRandomValues(b); return [...b].map((x) => CODE_ABC[x % 32]).join(''); };
+const cleanCode = (c) => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const fmtCode = (c) => c.match(/.{1,4}/g).join('-');
+const syncLink = () => new URL('./', location.href).href + '#sync=' + SY.code;
+
+async function syncApi(method, body, code = SY.code) {
+  const r = await fetch('api/sync', { method, cache: 'no-store', headers: { 'Content-Type': 'application/json', 'X-Sync-Code': code }, body: body ? JSON.stringify(body) : undefined });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  return { status: r.status, j };
+}
+function mergeList(a, b, tomb) {
+  const m = new Map();
+  [...(a || []), ...(b || [])].forEach((x) => {
+    const p = m.get(x.id);
+    if (!p) { m.set(x.id, x); return; }
+    const win = (x.u || 0) > (p.u || 0) ? x : p;
+    if (p.paid || x.paid) m.set(x.id, { ...win, paid: [...new Set([...(p.paid || []), ...(x.paid || [])])].sort() });
+    else m.set(x.id, win);
+  });
+  return [...m.values()].filter((x) => !(tomb[x.id] >= (x.u || 0))).sort((x, y) => (x.id < y.id ? -1 : 1));
+}
+function mergeDocs(local, remote) {
+  remote = remote || {};
+  const tomb = { ...(remote.tomb || {}) };
+  Object.entries(local.tomb || {}).forEach(([k, v]) => { if (!(tomb[k] >= v)) tomb[k] = v; });
+  const old = Date.now() - 180 * 864e5;
+  Object.keys(tomb).forEach((k) => { if (tomb[k] < old) delete tomb[k]; });
+  const sl = local.shared || {}, sr = remote.shared || {};
+  return { v: 1, expenses: mergeList(local.expenses, remote.expenses, tomb), reminders: mergeList(local.reminders, remote.reminders, tomb),
+    tomb, shared: (sr.u || 0) > (sl.u || 0) ? sr : sl };
+}
+const localDoc = () => ({ expenses: S.expenses, reminders: S.reminders, tomb: S.tomb || {},
+  shared: { currency: S.settings.currency, budget: S.settings.budget, notifyBefore: S.settings.notifyBefore, u: S.settings.su || 0 } });
+function applyDoc(d) {
+  const before = JSON.stringify([S.expenses, S.reminders, S.settings.currency, S.settings.budget]);
+  S.expenses = d.expenses; S.reminders = d.reminders; S.tomb = d.tomb;
+  if ((d.shared.u || 0) > (S.settings.su || 0)) { const { u, ...rest } = d.shared; Object.assign(S.settings, rest, { su: u }); }
+  saveLocal();
+  return before !== JSON.stringify([S.expenses, S.reminders, S.settings.currency, S.settings.budget]);
+}
+let syncBusy = false, syncAgain = false, syncTimer = null;
+function queueCloudSync() { if (!SY.code) return; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 1500); }
+async function syncNow(opts = {}) {
+  if (!SY.code) return false;
+  if (!navigator.onLine) { SY.err = 'offline'; saveSY(); refreshSyncUI(); return false; }
+  if (syncBusy) { syncAgain = true; return false; }
+  syncBusy = true; refreshSyncUI();
+  let changed = false, ok = false;
+  try {
+    let { status, j } = await syncApi('GET');
+    if (status !== 200) throw status === 503 ? 'storage_not_configured' : status;
+    if (opts.mustExist && !j.data) throw 'not_found';
+    let remote = j;
+    for (let tries = 0; ; tries++) {
+      const merged = mergeDocs(localDoc(), remote.data);
+      if (applyDoc(merged)) changed = true;
+      if (remote.data && JSON.stringify(merged) === JSON.stringify(remote.data)) break;
+      const put = await syncApi('PUT', { baseRev: remote.rev, data: merged });
+      if (put.status === 200) break;
+      if (put.status === 409 && tries < 4) { remote = put.j; continue; }
+      throw put.status === 503 ? 'storage_not_configured' : put.status;
+    }
+    SY.last = Date.now(); SY.err = null; ok = true;
+  } catch (e) { SY.err = String(e); console.warn('sync failed', e); }
+  syncBusy = false; saveSY();
+  if (changed && !$('#sheet').classList.contains('show') && !(document.activeElement && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))) render();
+  else refreshSyncUI();
+  if (syncAgain) { syncAgain = false; queueCloudSync(); }
+  return ok;
+}
+function syncErrText(e) {
+  return { storage_not_configured: t('syncNoStorage'), not_found: t('syncBadCode'), offline: t('syncOffline'), '400': t('syncBadCode') }[e] || t('syncFailed');
+}
+function syncStatusText() {
+  if (syncBusy) return t('syncing');
+  if (SY.err) return '⚠️ ' + syncErrText(SY.err);
+  if (SY.last) return t('syncedAgo', new Intl.RelativeTimeFormat(loc(), { numeric: 'auto' }).format(-Math.max(0, Math.round((Date.now() - SY.last) / 60000)), 'minute'));
+  return t('syncOn');
+}
+function refreshSyncUI() { const el = $('#syncStatus'); if (el) el.textContent = syncStatusText(); }
+
+async function enableSync() {
+  SY = { code: newCode(), rev: 0 }; saveSY(); refreshSyncUI();
+  const ok = await syncNow();
+  if (!ok) { const err = SY.err; SY = {}; saveSY(); render(); toast(syncErrText(err), 4000); return; }
+  render(); showSyncCode();
+}
+async function linkSync(raw) {
+  const code = cleanCode(raw);
+  if (!/^[A-HJ-NP-Z2-9]{20}$/.test(code)) { toast(t('syncBadCode')); return false; }
+  const prev = SY; SY = { code, rev: 0 }; saveSY();
+  const ok = await syncNow({ mustExist: true });
+  if (!ok) { const err = SY.err; SY = prev; saveSY(); toast(syncErrText(err), 4000); render(); return false; }
+  toast(t('syncLinked')); render(); return true;
+}
+function openLinkSheet() {
+  openSheet(`<div class="sheet-h"><h3>${t('syncLink')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    <p style="color:var(--muted);margin:0 0 14px;font-size:14px">${t('syncLinkBody')}</p>
+    <label class="field"><span>${t('syncCode')}</span><input class="input" id="lkCode" dir="ltr" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" style="text-align:center;font-weight:700;letter-spacing:.08em"></label>
+    <button class="btn primary block" id="lkGo">${t('syncLinkBtn')}</button>`, (sh) => {
+    setTimeout(() => $('#lkCode', sh).focus(), 320);
+    $('#lkGo', sh).onclick = async () => { const b = $('#lkGo', sh); b.disabled = true; b.textContent = t('syncing'); if (await linkSync($('#lkCode', sh).value)) closeSheet(); else { b.disabled = false; b.textContent = t('syncLinkBtn'); } };
+  });
+}
+async function showSyncCode() {
+  openSheet(`<div class="sheet-h"><h3>${t('syncCodeTitle')}</h3><button class="icon-btn" data-close>${ICON.close}</button></div>
+    <p style="color:var(--muted);margin:0 0 14px;font-size:14px">${t('syncCodeBody')}</p>
+    <div id="qrBox" style="display:grid;place-items:center;min-height:40px;margin-bottom:14px"></div>
+    <div class="code-box" dir="ltr">${fmtCode(SY.code)}</div>
+    <div class="btns"><button class="btn ghost" id="cpCode">${t('copyCode')}</button><button class="btn primary" id="shLink">${t('shareLink')}</button></div>
+    <p style="color:var(--danger);font-size:12.5px;margin:14px 0 0;text-align:center">🔒 ${t('syncSecret')}</p>`, async (sh) => {
+    const copy = async (txt, msg) => { try { await navigator.clipboard.writeText(txt); toast(msg); } catch (e) { toast(txt, 5000); } };
+    $('#cpCode', sh).onclick = () => copy(fmtCode(SY.code), t('copied'));
+    $('#shLink', sh).onclick = async () => { if (navigator.share) { try { await navigator.share({ title: t('appName'), text: t('syncShareText'), url: syncLink() }); } catch (e) {} } else copy(syncLink(), t('linkCopied')); };
+    try {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js');
+      const q = window.qrcode(0, 'M'); q.addData(syncLink()); q.make();
+      $('#qrBox', sh).innerHTML = `<div style="background:#fff;padding:10px;border-radius:16px;box-shadow:var(--shadow)">${q.createSvgTag({ cellSize: 5, margin: 0, scalable: true })}</div>`;
+      const svg = $('#qrBox svg', sh); if (svg) { svg.style.width = '190px'; svg.style.height = '190px'; }
+    } catch (e) { $('#qrBox', sh).remove(); }
+  });
+}
+async function disableSync() {
+  if (!(await confirmBox(t('syncOffConfirm'), t('syncOff')))) return;
+  SY = {}; saveSY(); render(); toast(t('syncOffDone'));
+}
+
 /* ================= SETTINGS ================= */
 let installEvt = null;
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1055,13 +1212,23 @@ function renderSettings() {
       <select class="input" id="setNb">${[0, 1, 2, 3, 5, 7].map((d) => `<option value="${d}" ${+st.notifyBefore === d ? 'selected' : ''}>${d ? t('daysN', num(d, 0)) : t('sameDay')}</option>`).join('')}</select></div>
     ${installRow}
   </div>
+  <p class="set-title">${t('syncTitle')}</p>
+  <div class="set-group">
+    ${SY.code ? `
+    <div class="set-row"><span class="ic" style="color:var(--lime)">${ICON.cloud}</span><div class="lab"><b>${t('syncOn')}</b><small id="syncStatus">${esc(syncStatusText())}</small></div>
+      <button class="btn ghost sm" data-act="syncNow">${ICON.refresh}</button></div>
+    <button class="set-row" data-act="syncCode"><span class="ic">${ICON.qr}</span><div class="lab"><b>${t('syncAddDevice')}</b><small>${t('syncAddDeviceBody')}</small></div>${ICON.chev}</button>
+    <button class="set-row" data-act="syncOff"><span class="ic">${ICON.cloudOff}</span><div class="lab"><b>${t('syncOff')}</b><small>${t('syncOffBody')}</small></div></button>` : `
+    <div class="set-row col"><div class="head"><span class="ic">${ICON.cloud}</span><div class="lab"><b>${t('syncTitle')}</b><small>${t('syncIntro')}</small></div></div>
+      <div class="row2" style="margin-top:12px"><button class="btn primary sm" data-act="syncOn">${t('syncEnable')}</button><button class="btn ghost sm" data-act="syncLink">${t('syncLink')}</button></div></div>`}
+  </div>
   <p class="set-title">${t('data')}</p>
   <div class="set-group">
     <button class="set-row" data-act="backup"><span class="ic">${ICON.down}</span><div class="lab"><b>${t('backup')}</b><small>${t('backupBody')}</small></div>${ICON.chev}</button>
     <button class="set-row" data-act="restore"><span class="ic">${ICON.up}</span><div class="lab"><b>${t('restore')}</b></div>${ICON.chev}</button>
     <button class="set-row" data-act="wipe"><span class="ic" style="color:var(--danger)">${ICON.trash}</span><div class="lab"><b class="danger-text">${t('wipe')}</b></div></button>
   </div>
-  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.2.0</span><span>🔒 ${t('storedLocally')}</span></div>`;
+  <div class="credit"><img src="icons/logo-mark.png" alt=""><b>${t('appName')}</b><span>${t('tagline')}</span><span>Powered By Sobky · v1.3.0</span><span>🔒 ${t('storedLocally')}</span></div>`;
 }
 
 /* ================= Sheet / toast / confirm ================= */
@@ -1111,11 +1278,11 @@ function bindView() {
   if (sl) {
     sl.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.settings.lang = b.dataset.v; save(); applyLang(); render(); });
     $('#segTheme', v).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.settings.theme = b.dataset.v; save(); applyTheme(); render(); });
-    $('#setCur', v).addEventListener('change', (e) => { S.settings.currency = e.target.value; save(); toast(t('saved')); });
-    $('#setNb', v).addEventListener('change', (e) => { S.settings.notifyBefore = +e.target.value; save(); toast(t('saved')); });
+    $('#setCur', v).addEventListener('change', (e) => { S.settings.currency = e.target.value; S.settings.su = Date.now(); save(); toast(t('saved')); });
+    $('#setNb', v).addEventListener('change', (e) => { S.settings.notifyBefore = +e.target.value; S.settings.su = Date.now(); save(); toast(t('saved')); });
     const bud = $('#setBudget', v);
     bud.addEventListener('input', () => { const n = normDigits(bud.value); if (n !== bud.value) bud.value = n; });
-    bud.addEventListener('change', () => { S.settings.budget = Math.max(0, parseFloat(normDigits(bud.value)) || 0); save(); toast(t('budgetSet')); });
+    bud.addEventListener('change', () => { S.settings.budget = Math.max(0, parseFloat(normDigits(bud.value)) || 0); S.settings.su = Date.now(); save(); toast(t('budgetSet')); });
   }
 }
 
@@ -1140,6 +1307,11 @@ document.addEventListener('click', async (e) => {
     case 'pay': payReminder(id); break;
     case 'ics': icsFor(S.reminders.find((r) => r.id === id)); break;
     case 'notif': askNotif(); break;
+    case 'syncOn': el.disabled = true; enableSync(); break;
+    case 'syncLink': openLinkSheet(); break;
+    case 'syncNow': syncNow().then((ok) => toast(ok ? t('syncedAgo', '✓') : syncErrText(SY.err))); break;
+    case 'syncCode': showSyncCode(); break;
+    case 'syncOff': disableSync(); break;
     case 'testNotif': showNotif(t('appName'), t('notifTest')); break;
     case 'install':
       if (installEvt) { installEvt.prompt(); const c = await installEvt.userChoice; installEvt = null; if (c.outcome === 'accepted') toast(t('installed')); render(); }
@@ -1148,7 +1320,7 @@ document.addEventListener('click', async (e) => {
     case 'backup': download(`masroufi-backup-${dstr()}.json`, JSON.stringify({ app: 'masroufi', v: 1, exported: new Date().toISOString(), ...S }, null, 2), 'application/json'); break;
     case 'restore': $('#importFile').click(); break;
     case 'wipe':
-      if (await confirmBox(t('confirmWipe'), t('wipe'))) { const st = S.settings; S = JSON.parse(JSON.stringify(DEF)); S.settings = st; save(); toast(t('deleted')); render(); }
+      if (await confirmBox(t('confirmWipe'), t('wipe'))) { const st = S.settings; const tomb = { ...(S.tomb || {}) }; [...S.expenses, ...S.reminders].forEach((x) => { tomb[x.id] = Date.now(); }); S = { ...JSON.parse(JSON.stringify(DEF)), tomb }; S.settings = st; save(); toast(t('deleted')); render(); }
       break;
   }
 });
@@ -1160,14 +1332,16 @@ $('#importFile').addEventListener('change', async (e) => {
   try {
     const d = JSON.parse(await f.text());
     if (!Array.isArray(d.expenses)) throw 0;
-    S = { expenses: d.expenses, reminders: d.reminders || [], settings: { ...DEF.settings, ...(d.settings || {}) } };
+    const nowU = Date.now();
+    S = { expenses: d.expenses.map((x) => ({ ...x, u: nowU })), reminders: (d.reminders || []).map((x) => ({ ...x, u: nowU })), tomb: S.tomb || {}, settings: { ...DEF.settings, ...(d.settings || {}), su: nowU } };
     save(); applyLang(); applyTheme(); toast(t('restored')); render();
   } catch (err) { toast(t('badFile')); }
 });
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (V.tab === 'settings') render(); });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== V.tab && ['home', 'statement', 'reminders', 'settings'].includes(h)) go(h); });
+window.addEventListener('hashchange', () => { if (location.hash.startsWith('#sync=')) { handleSyncHash(); return; } const h = location.hash.slice(1); if (h && h !== V.tab && ['home', 'statement', 'reminders', 'settings'].includes(h)) go(h); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { syncSchedule(true); if (V.tab !== 'settings') render(); } });
+window.addEventListener('online', () => queueCloudSync());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { syncSchedule(true); queueCloudSync(); if (V.tab !== 'settings') render(); } });
 
 /* ================= Boot ================= */
 applyTheme(); applyLang();
@@ -1176,6 +1350,14 @@ applyTheme(); applyLang();
 const h = location.hash.slice(1);
 if (['home', 'statement', 'reminders', 'settings'].includes(h)) V.tab = h;
 render();
+async function handleSyncHash() {
+  const code = cleanCode(decodeURIComponent(location.hash.slice(6)));
+  history.replaceState(null, '', location.pathname + '#settings');
+  if (code === SY.code) return;
+  if (await confirmBox(t('syncLinkConfirm'), t('syncLinkYes'))) { V.tab = 'settings'; render(); linkSync(code); }
+}
+if (location.hash.startsWith('#sync=')) setTimeout(handleSyncHash, document.getElementById('splash') ? 4300 : 600);
+else if (SY.code) setTimeout(() => syncNow(), 800);
 if (new URLSearchParams(location.search).get('action') === 'add') { history.replaceState(null, '', location.pathname + '#home'); setTimeout(() => openExpense(), 300); }
 
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
